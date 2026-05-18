@@ -3,11 +3,14 @@
     "name": "VeriCite",
     "version": "0.1.0",
     "background": {
-        "service_worker": "background.js",
+        "service_worker": "service-worker.js",
         "type": "module"
     },
     "action": {},
     "permissions": [
+        "scripting"
+    ],
+    "host_permissions": [
         "http://*/*",
         "https://*/*"
     ]

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeriCite</title>
+</head>
+<body>
+    <div id="login-page">
+        <h1>VeriCite</h1>
+        <p id="status">Login with Your Google Account to Start</p>
+        <button id="login-button">Login with Google</button>
+        <button id="cancel-button">Cancel</button>
+    </div>
+    <div id="settings-page" hidden>
+        <h1>VeriCite Setup</h1>
+        <label for="citation-format">Citation format</label>
+        <select id="citation-format">
+            <option value="apa">APA</option>
+            <option value="mla">MLA</option>
+            <option value="chicago">Chicago</option>
+            <option value="ieee">IEEE</option>
+        </select>
+        <label for="references-start-page">References start page</label>
+        <input
+        id="references-start-page"
+        type="number"
+        min="1"
+        placeholder="e.g. 8"
+        />
+
+        <button id="continue-button">Continue</button>
+        <button id="back-button">Back</button>
+  </div>
+  <script type="module" src="index.js"></script>
+</body>
+</html>

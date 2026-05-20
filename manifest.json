@@ -10,8 +10,7 @@
         "declarativeContent",
         "identity",
         "storage",
-        "downloads",
-        "offscreen"
+        "downloads"
     ],
     "host_permissions": [
         "https://docs.google.com/document/*",
@@ -21,8 +20,7 @@
     "oauth2": {
         "client_id": "597339304581-m7brp0cti4spo5us17at89idu17a8f4b.apps.googleusercontent.com",
         "scopes": [
-            "https://www.googleapis.com/auth/documents",
-            "https://www.googleapis.com/auth/drive"
+            "https://www.googleapis.com/auth/documents"
         ]
     },
     "background": {

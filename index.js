@@ -17,12 +17,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const loginPage = document.getElementById("login-page");
   const settingsPage = document.getElementById("settings-page");
   const citationFormat = document.getElementById("citation-format");
-  const referencesStartPage = document.getElementById("references-start-page");
   const continueButton = document.getElementById("continue-button");
   const backButton = document.getElementById("back-button");
 
   if (!statusText || !loginButton || !cancelButton || !loginPage || !settingsPage || !citationFormat ||
-    !referencesStartPage || !continueButton || !backButton) {
+    !continueButton || !backButton) {
     console.error("Required elements not found in the DOM.");
     return;
   }
@@ -64,34 +63,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   // User has clicked the continue button, save the settings to local storage and send message to service worker to begin processing
   continueButton.addEventListener("click", async () => {
     const format = citationFormat.value;
-    const startPage = Number(referencesStartPage.value);
 
     // If the user has not selected a citation format, show an error message and return
     if (!format) {
         alert("Please select a citation format.");
         return;
     }
-    
-    // If the user has not entered a valid references start page, show an error message and return
-    if (!startPage || startPage < 1) {
-        alert("Please enter a valid references start page.");
-        return;
-    }
 
     // Save the settings to local storage
     await browser.storage.local.set({
         citationFormat: format,
-        referencesStartPage: startPage
     });
 
     // Send a message to the service worker to begin processing
     // include citationFormat, referencesStartPage and the current active tab in the message
-    const response = await browser.runtime.sendMessage({
-        type: "BEGIN_PROCESSING",
-        citationFormat: format,
-        referencesStartPage: startPage,
-        tab: currentTab
-    });
+    console.log("Sending BEGIN_PROCESSING message");
+
+    try {
+      const response = await browser.runtime.sendMessage({
+          type: "BEGIN_PROCESSING",
+          citationFormat: format,
+          tab: currentTab
+      });
+    } catch (error) {
+      console.error("BEGIN_PROCESSING message failed:", error);
+    }
   });
 
   // User has clicked the back button, hide the settings page

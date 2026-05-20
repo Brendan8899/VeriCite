@@ -8,18 +8,21 @@
     "permissions": [
         "activeTab",
         "declarativeContent",
-        "scripting",
         "identity",
-        "storage"
+        "storage",
+        "downloads",
+        "offscreen"
     ],
     "host_permissions": [
         "https://docs.google.com/document/*",
-        "https://docs.googleapis.com/*"
+        "https://docs.googleapis.com/*",
+        "https://www.googleapis.com/*"
     ],
     "oauth2": {
-        "client_id": process.env.CLIENT_ID,
+        "client_id": "597339304581-m7brp0cti4spo5us17at89idu17a8f4b.apps.googleusercontent.com",
         "scopes": [
-            "https://www.googleapis.com/auth/documents.readonly"
+            "https://www.googleapis.com/auth/documents",
+            "https://www.googleapis.com/auth/drive"
         ]
     },
     "background": {

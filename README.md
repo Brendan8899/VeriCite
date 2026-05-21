@@ -1,1 +1,1 @@
-"# VeriCite" 
+# VeriCite

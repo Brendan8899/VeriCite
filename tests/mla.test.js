@@ -1,13 +1,14 @@
-const { isValidMLA } = require('../src/verifyMLA');
+import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
+import { isValidMLA } from '../src/verifyMLA';
 
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 beforeEach(() => {
   global.fetch.mockResolvedValue({ ok: true });
 });
 
 afterEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 describe('MLA author format', () => {
@@ -126,7 +127,7 @@ describe('MLA website format', () => {
   });
 
   test('flags unreachable URL', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 404 });
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
     const citation = 'Smith, John. "Page Title." Website Name, 15 Jan. 2021, https://dead-url.com/page.';
     const result = await isValidMLA(citation);
     expect(result.errors.some(e => e.includes('unreachable'))).toBe(true);

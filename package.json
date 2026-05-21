@@ -1,9 +1,14 @@
 {
-  "devDependencies": {
-    "jest": "^30.4.2"
-  },
-
+  "name": "vericite",
+  "version": "0.1.0",
+  "description": "",
   "scripts": {
-    "test": "jest"
+    "test": "vitest"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "packageManager": "pnpm@11.1.0",
+  "devDependencies": {
+    "vitest": "^4.1.7"
   }
 }

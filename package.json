@@ -4,6 +4,8 @@
 	"description": "",
 	"scripts": {
 		"test": "vitest",
+		"fmt": "oxfmt",
+		"fmt:check": "oxfmt --check",
 		"lint": "oxlint",
 		"lint:fix": "oxlint --fix"
 	},
@@ -11,6 +13,7 @@
 	"license": "ISC",
 	"packageManager": "pnpm@11.1.0",
 	"devDependencies": {
+		"oxfmt": "^0.51.0",
 		"oxlint": "^1.66.0",
 		"vitest": "^4.1.7"
 	}

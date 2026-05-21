@@ -1,29 +1,12 @@
-function extractUrl(citation) {
-  const urlRegex = /https?:\/\/[^\s]+/g;
-  const match = citation.match(urlRegex);
-  return match ? match[0] : null;
-}
+import { isValidUrl } from "../utility.js";
 
-async function checkUrlExists(url) {
-  try {
-    const response = await fetch(url, { method: 'HEAD' }); //return status only
-    return response.ok;
-  } catch (e) {
-    return false;
-  }
-}
-
-async function isValidUrl(citation) {
-  const url = extractUrl(citation);
-  if (!url) return { found: false, reachable: false };
-  const reachable = await checkUrlExists(url);
-  return { found: true, url, reachable };
-}
-
+// Check if the reference has a year in parentheses and if its a valid year or no date
 function hasYear(citation) {
+  // Get the current year in the system to check for future years in the citation
   const currentYear = new Date().getFullYear();
 
   // matches (2021) or (2021, March 5) or (n.d.)
+  // Check if theres open braces, followed by either 4 digits or 'n.d.', optionally followed by a comma and more text, then a closing brace
   const yearRegex = /\((\d{4}|n\.d\.)(,\s[^)]+)?\)/;
   const match = citation.match(yearRegex);
 
@@ -35,30 +18,29 @@ function hasYear(citation) {
 
   // check if year is before 1800 or in the future
   const year = parseInt(match[1]);
-  if (year < 1800) return { found: false, error: 'Year is implausibly old' };
+  if (year < 1800) return { found: false, error: 'Year is very old' };
   if (year > currentYear) return { found: false, error: 'Year is in the future' };
 
   return { found: true, value: year };
 }
 
-async function isValidAPA(citation) {
+export async function isValidAPA(citation) {
   const errors = [];
   const warnings = [];
-
+  // Replace multiple consecutive whitespace character with a single space and trim Leading/trailing whitespace
   const normalised = citation.replace(/\s+/g, ' ').trim();
 
-  // Author check
-  const authorRegex = /^([A-Z][a-zA-ZÀ-ÖØ-öø-ÿ\-]+,\s[A-Z]\.|[A-Z][a-zA-Z\s]+\.)/;
-  if (!authorRegex.test(normalised)) errors.push('Author is missing or not correctly formatted');
+  // Check if the Author Exists and is in the correct format (Lastname, F. M.)
+  // [a-zA-ZÀ-ÖØ-öø-ÿ\-] represents the set of all English and European Language Characters, including accented characters and hyphenated names
+  const authorRegex = /^([A-Z][a-zA-ZÀ-ÖØ-öø-ÿ\-]+,\s[A-Z]\.(\s[A-Z]\.)?)/;
+  // Regex for Organization Names, e.g. "World Health Organization" or "Smithsonian Institution"
+  const orgAuthorRegex = /^[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*\./;
+  if (!authorRegex.test(normalised) && !orgAuthorRegex.test(normalised)) errors.push('Author or Organization Author is missing or not correctly formatted');
 
-  // Full first name check
-  const fullFirstNameRegex = /^[A-Z][a-z]+,\s[A-Z][a-z]+/;
-  if (fullFirstNameRegex.test(normalised)) errors.push('Author first name must be abbreviated to initials');
-
-  const afterAuthors = normalised.replace(/^([A-Z][a-zA-ZÀ-ÖØ-öø-ÿ\-]+,\s[A-Z]\.(\s[A-Z]\.)?)(,\s(&\s)?[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ\-]+,\s[A-Z]\.(\s[A-Z]\.)?)*,?\s/, '');
-  if (!/^\((\d{4}|n\.d\.)/.test(afterAuthors)) {
-    errors.push('Year must appear immediately after the author');
-  }
+  const yearAfterAuthorRegex = /[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ-]+,\s[A-Z]\.(\s[A-Z]\.)?\s\((\d{4}|n\.d\.)(,\s[^)]+)?\)/;
+  // Regex for Organization Names and Year in parentheses, e.g. (World Health Organization, 2021) or (World Health Organization, n.d.)  
+  const yearAfterOrgAuthor = /[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*\.\s\((\d{4}|n\.d\.)(,\s[^)]+)?\)/;
+  if (!yearAfterAuthorRegex.test(normalised) && !yearAfterOrgAuthor.test(normalised)) errors.push('Year must appear immediately after the author');
 
   // Year validity check
   const yearResult = hasYear(normalised);
@@ -79,5 +61,3 @@ async function isValidAPA(citation) {
 
   return { valid: errors.length === 0, errors, warnings };
 }
-
-module.exports = { extractUrl, checkUrlExists, isValidUrl, hasYear, isValidAPA };

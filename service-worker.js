@@ -23,6 +23,35 @@ async function fetchGoogleDoc(documentId) {
   return response.json();
 }
 
+async function commentTest(documentId) {
+  // Request URL based on Documentation
+  const requestUrl = `https://www.googleapis.com/drive/v3/files/${documentId}/comments`;
+
+  // Fetch the response which would be the document information
+  const response = await fetch(requestUrl, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+    body:{
+    "anchor": string,
+    "content": string,
+    "quotedFileContent": {
+      "mimeType": string,
+      "value": string
+    },
+    "assigneeEmailAddress": string
+  }
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Docs API request failed with status ${response.status}: ${errorText}`);
+  }
+
+  return response.json();
+}
+
 // Filter out irrelevant elements from doc.body.content
 function extractParagraphsFromGoogleDoc(doc) {
   return (doc.body?.content || [])
@@ -54,9 +83,9 @@ function extractReferencesFromParagraphs(paragraphs) {
   return paragraphs.slice(referencesStartIndex + 1);
 }
 
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "GOOGLE_LOGIN") {
-    browser.identity.getAuthToken({ interactive: true })
+    chrome.identity.getAuthToken({ interactive: true })
       .then((result) => {
         token = result.token;
         sendResponse({
@@ -115,6 +144,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const references = extractReferencesFromParagraphs(paragraphs);
         const referencesText = references.join("\n");
 
+        console.log(doc);
         console.log("Extracted references", references);
 
         // PlaceHolder sendResponse for now

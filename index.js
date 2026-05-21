@@ -2,7 +2,7 @@ import { isGoogleDocsUrl } from "./utility.js";
 
 // Get the Current Active Tab
 async function getCurrentTab() {
-  const [tab] = await browser.tabs.query({
+  const [tab] = await chrome.tabs.query({
     active: true,
     currentWindow: true
   });
@@ -19,9 +19,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   const citationFormat = document.getElementById("citation-format");
   const continueButton = document.getElementById("continue-button");
   const backButton = document.getElementById("back-button");
+  const commentButton = document.getElementById("comment-test-button");
 
   if (!statusText || !loginButton || !cancelButton || !loginPage || !settingsPage || !citationFormat ||
-    !continueButton || !backButton) {
+    !continueButton || !backButton || !commentButton) {
     console.error("Required elements not found in the DOM.");
     return;
   }
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   loginButton.addEventListener("click", async () => {
     statusText.textContent = "Logging in...";
     try {
-      const response = await browser.runtime.sendMessage({
+      const response = await chrome.runtime.sendMessage({
         type: "GOOGLE_LOGIN"
       });
 
@@ -60,6 +61,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // User clicked the comment button, engage the comment settings, send message to service worker to begin comment
+  commentButton.addEventListener("click", async () => {
+    statusText.textContent = "Creating Test Comment...";
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: "COMMENT_CREATE"
+      });
+    } catch (error){
+      console.log(error);
+      statusText.textContent = "Comment failed";
+    }
+  });
+
   // User has clicked the continue button, save the settings to local storage and send message to service worker to begin processing
   continueButton.addEventListener("click", async () => {
     const format = citationFormat.value;
@@ -71,7 +85,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Save the settings to local storage
-    await browser.storage.local.set({
+    await chrome.storage.local.set({
         citationFormat: format,
     });
 
@@ -80,7 +94,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Sending BEGIN_PROCESSING message");
 
     try {
-      const response = await browser.runtime.sendMessage({
+      const response = await chrome.runtime.sendMessage({
           type: "BEGIN_PROCESSING",
           citationFormat: format,
           tab: currentTab

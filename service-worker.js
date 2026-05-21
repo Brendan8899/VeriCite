@@ -1,5 +1,5 @@
 import { isGoogleDocsUrl } from "./utility.js";
-import { isValidAPA } from "./verifyAPA.js";
+import { isValidAPA } from "../src/verifyAPA.js";
 
 let token = null;
 

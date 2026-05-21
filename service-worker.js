@@ -1,4 +1,5 @@
 import { isGoogleDocsUrl } from "./utility.js";
+import { isValidAPA } from "./verifyAPA.js";
 
 let token = null;
 
@@ -20,7 +21,7 @@ async function fetchGoogleDoc(documentId) {
     throw new Error(`Docs API request failed with status ${response.status}: ${errorText}`);
   }
 
-  return response.json();
+  return await response.json();
 }
 
 // Filter out irrelevant elements from doc.body.content
@@ -78,7 +79,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // If token does not exists, user is not authenticated yet, do not proceed with processing
     if (!token) {
-      console.log("BEGIN_PROCESSING failed: missing token");
       sendResponse({
         ok: false,
         error: "Not authenticated"
@@ -89,7 +89,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // User is authenticated, proceed with processing
     const url = message.tab.url;
     if (!isGoogleDocsUrl(url)) {
-      console.log("BEGIN_PROCESSING failed: not a Google Docs URL", url);
       sendResponse({
         ok: false,
         error: "Not a Google Docs document"
@@ -104,31 +103,37 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // If documentId not found, then return an error
     if (!documentId) {
-        console.log("BEGIN_PROCESSING failed: invalid document ID", url);
         sendResponse({ ok: false, error: "Invalid document ID" });
         return true;
     }
 
     fetchGoogleDoc(documentId)
-      .then((doc) => {
+      .then(async (doc) => {
+        let result = []
         const paragraphs = extractParagraphsFromGoogleDoc(doc);
         const references = extractReferencesFromParagraphs(paragraphs);
-        const referencesText = references.join("\n");
-
-        console.log("Extracted references", references);
-
-        // PlaceHolder sendResponse for now
-        sendResponse({
-          ok: true,
-          documentId,
-          citationFormat: message.citationFormat,
-          references,
-          referencesText
-        });
-      })
+        for (let i of references) {
+          let validityResult = null;
+          if (message.citationFormat === "APA") {
+             validityResult = await isValidAPA(i);
+          } else if (message.citationFormat === "MLA") {
+            // validityResult = await isValidMLA(i);
+          } else if (message.citationFormat === "Chicago") {
+            // validityResult = await isValidChicago(i);
+          } else if (message.citationFormat === "IEEE") {
+            // validityResult = await isValidIEEE(i);
+          }
+          if (validityResult) {
+            result.push({i, validityResult});
+          } else {
+            pass
+          }
+        }
+        console.log("Processing complete", result);
+      }).then(
+        result => sendResponse(result)
+      )
       .catch((error) => {
-        console.error("BEGIN_PROCESSING failed:", error);
-
         // PlaceHolder sendResponse for now
         sendResponse({
           ok: false,

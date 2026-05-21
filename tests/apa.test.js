@@ -1,4 +1,5 @@
-const { extractUrl, checkUrlExists, isValidUrl, hasYear, isValidAPA } = require('../src/verifyAPA');
+import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
+import { extractUrl, checkUrlExists, isValidUrl, hasYear, isValidAPA } from '../src/verifyAPA';
 
 describe('extractUrl - pulls URL out of citation string', () => {
 
@@ -23,7 +24,7 @@ describe('extractUrl - pulls URL out of citation string', () => {
   });
 
 });
-  
+
 describe('checkUrlExists - real network (integration)', () => {
 
   test('confirms google.com is reachable', async () => {
@@ -74,10 +75,10 @@ describe('hasYear', () => {
 describe('isValidAPA - format validation', () => {
 
   beforeEach(() => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: true }); // assume URLs reachable by default
+    global.fetch = vi.fn().mockResolvedValue({ ok: true }); // assume URLs reachable by default
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => vi.clearAllMocks());
 
   test('passes a well-formed journal article', async () => {
     const citation = 'Smith, J. A., & Doe, B. (2021). Title of the article. Journal Name, 12(3), 45–67. https://doi.org/10.1000/xyz';
@@ -101,7 +102,7 @@ describe('isValidAPA - format validation', () => {
   });
 
   test('fails when URL is unreachable', async () => {
-    global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 404 });
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
     const citation = 'Smith, J. (2021). Title. Journal. https://dead-url.com/page';
     const result = await isValidAPA(citation);
     expect(result.valid).toBe(false);

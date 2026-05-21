@@ -15,7 +15,9 @@
     "host_permissions": [
         "https://docs.google.com/document/*",
         "https://docs.googleapis.com/*",
-        "https://www.googleapis.com/*"
+        "https://www.googleapis.com/*",
+        "https://*/*",
+        "http://*/*"
     ],
     "oauth2": {
         "client_id": "597339304581-m7brp0cti4spo5us17at89idu17a8f4b.apps.googleusercontent.com",

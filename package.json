@@ -2,6 +2,8 @@
 	"name": "vericite",
 	"version": "0.1.0",
 	"description": "",
+	"keywords": [],
+	"license": "ISC",
 	"scripts": {
 		"test": "vitest",
 		"test:coverage": "vitest run --coverage",
@@ -10,9 +12,6 @@
 		"lint": "oxlint",
 		"lint:fix": "oxlint --fix"
 	},
-	"keywords": [],
-	"license": "ISC",
-	"packageManager": "pnpm@11.2.2",
 	"devDependencies": {
 		"@types/node": "^25.9.1",
 		"@vitest/coverage-v8": "^4.1.7",
@@ -20,5 +19,6 @@
 		"oxlint": "^1.66.0",
 		"oxlint-tsgolint": "^0.23.0",
 		"vitest": "^4.1.7"
-	}
+	},
+	"packageManager": "pnpm@11.2.2"
 }

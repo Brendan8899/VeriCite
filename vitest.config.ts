@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config';
 
-const isCI = !!process.env.CI
+const isCI = !!process.env.CI;
 
 export default defineConfig({
 	test: {
@@ -10,10 +10,7 @@ export default defineConfig({
 			enabled: true,
 			reportOnFailure: true,
 			reportsDirectory: './coverage',
-			reporter: isCI
-				? ['text', 'json', 'json-summary']
-				: ['text', 'html'],
-
+			reporter: isCI ? ['text', 'json', 'json-summary'] : ['text', 'html'],
 
 			thresholds: undefined,
 			// thresholds: isCI ? {
@@ -23,5 +20,5 @@ export default defineConfig({
 			// 	statements: 80
 			// } : undefined,
 		},
-	}
+	},
 });

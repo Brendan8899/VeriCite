@@ -5,5 +5,5 @@
 	"semi": true,
 	"sortImports": true,
 	"singleQuote": true,
-	"jsxSingleQuote": true,
+	"jsxSingleQuote": true
 }

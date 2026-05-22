@@ -16,7 +16,7 @@ jobs:
                 task:
                     - { name: "Formatting", command: "pnpm run fmt:check" }
                     - { name: "Linting", command: "pnpm run lint --format=github" }
-                    - { name: "Testing", command: "pnpm run test:coverage" }
+                    - { name: "Testing", command: "pnpm run test:coverage; ls -la ./coverage" }
 
         steps:
             - uses: actions/checkout@v4

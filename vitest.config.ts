@@ -8,13 +8,10 @@ export default defineConfig({
 		coverage: {
 			provider: 'v8',
 			enabled: true,
-			// Forces Vitest to write the coverage files even if a unit test fails
 			reportOnFailure: true,
-			// Explicitly forces the root directory destination
 			reportsDirectory: './coverage',
-			// 'json-summary' is for GitHub Action
 			reporter: isCI
-				? ['text', 'json-summary']
+				? ['text', 'json', 'json-summary']
 				: ['text', 'html'],
 
 

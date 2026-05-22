@@ -1,4 +1,4 @@
-import { extractUrl, checkUrlExists, isValidUrl } from "../utility.js"
+import { extractUrl, checkUrlExists, isValidUrl } from '../utility.js';
 
 // MLA year is a bare 4-digit number near the end, no parentheses
 function hasYearMLA(citation) {

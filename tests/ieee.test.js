@@ -1,8 +1,9 @@
 import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
+
 import { normalizeWhitespace } from '../utility.js';
 
 vi.mock('../utility.js', async (importOriginal) => {
-  const actual = await importOriginal();
+	const actual = await importOriginal();
 
 	return {
 		...actual,
@@ -14,8 +15,9 @@ vi.mock('../utility.js', async (importOriginal) => {
 	};
 });
 
-import { isValidIEEE } from '../src/verifyIEEE';
 import { normalize } from 'node:path';
+
+import { isValidIEEE } from '../src/verifyIEEE';
 
 describe('isValidIEEE - format validation', () => {
 	// All test citations will be taken from IEEE Reference from:

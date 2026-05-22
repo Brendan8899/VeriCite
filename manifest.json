@@ -1,32 +1,24 @@
 {
-    "manifest_version": 3,
-    "name": "VeriCite",
-    "version": "0.1.0",
-    "action": {
-        "default_popup": "index.html"
-    },
-    "permissions": [
-        "activeTab",
-        "declarativeContent",
-        "identity",
-        "storage",
-        "downloads"
-    ],
-    "host_permissions": [
-        "https://docs.google.com/document/*",
-        "https://docs.googleapis.com/*",
-        "https://www.googleapis.com/*",
-        "https://*/*",
-        "http://*/*"
-    ],
-    "oauth2": {
-        "client_id": "597339304581-m7brp0cti4spo5us17at89idu17a8f4b.apps.googleusercontent.com",
-        "scopes": [
-            "https://www.googleapis.com/auth/documents"
-        ]
-    },
-    "background": {
-        "service_worker": "service-worker.js",
-        "type": "module"
-    }
+	"manifest_version": 3,
+	"name": "VeriCite",
+	"version": "0.1.0",
+	"action": {
+		"default_popup": "index.html"
+	},
+	"permissions": ["activeTab", "declarativeContent", "identity", "storage", "downloads"],
+	"host_permissions": [
+		"https://docs.google.com/document/*",
+		"https://docs.googleapis.com/*",
+		"https://www.googleapis.com/*",
+		"https://*/*",
+		"http://*/*"
+	],
+	"oauth2": {
+		"client_id": "597339304581-m7brp0cti4spo5us17at89idu17a8f4b.apps.googleusercontent.com",
+		"scopes": ["https://www.googleapis.com/auth/documents"]
+	},
+	"background": {
+		"service_worker": "service-worker.js",
+		"type": "module"
+	}
 }

@@ -16,7 +16,7 @@ jobs:
                 task:
                     - { name: "Formatting", command: "pnpm run fmt:check" }
                     - { name: "Linting", command: "pnpm run lint --format=github" }
-                    - { name: "Testing", command: "pnpm run test:coverage; ls -la ./coverage" }
+                    - { name: "Testing", command: "pnpm run test:coverage" }
 
         steps:
             - uses: actions/checkout@v4
@@ -36,6 +36,10 @@ jobs:
 
             - name: Run Task Command
               run: ${{ matrix.task.command }}
+
+            - name: dbg coverage file
+              if: matrix.task.name == 'Testing' && always()
+              run: find . \( -path "*/node_modules" -o -path "*/.git" \) -prune -o -print
 
             - name: Report Coverage
               if: matrix.task.name == 'Testing' && always()

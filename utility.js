@@ -27,3 +27,8 @@ export async function isValidUrl(citation) {
   const reachable = await checkUrlExists(url);
   return { found: true, url, reachable };
 }
+
+export function normalizeWhitespace(citation) {
+  // Replace multiple consecutive whitespace character with a single space and trim Leading/trailing whitespace
+  return citation.replace(/\s+/g, ' ').trim();
+}

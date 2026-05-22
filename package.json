@@ -4,6 +4,7 @@
 	"description": "",
 	"scripts": {
 		"test": "vitest",
+		"test:coverage": "vitest run --coverage",
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
 		"lint": "oxlint",
@@ -11,8 +12,9 @@
 	},
 	"keywords": [],
 	"license": "ISC",
-	"packageManager": "pnpm@11.1.0",
+	"packageManager": "pnpm@11.2.2",
 	"devDependencies": {
+		"@types/node": "^25.9.1",
 		"oxfmt": "^0.51.0",
 		"oxlint": "^1.66.0",
 		"oxlint-tsgolint": "^0.23.0",

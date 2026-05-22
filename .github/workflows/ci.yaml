@@ -1,0 +1,48 @@
+name: Tests
+
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+
+jobs:
+    test:
+        name: Tests
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false # run tests even if lint/fmt fails
+            matrix:
+                node-version: [24.x]
+                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+                task:
+                    - { name: "Formatting", command: "pnpm run fmt:check" }
+                    - { name: "Linting", command: "pnpm run lint -- --format=github" }
+                    - { name: "Testing", command: "pnpm run test:coverage" }
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v6
+              with:
+                  version: 10
+                  cache: true
+
+            - name: Install dependencies
+              run: pnpm ci
+
+            - name: Run Task Command
+              run: ${{ matrix.task.command }}
+
+            - name: Report Coverage
+              if: matrix.task.name == 'Testing' && always()
+              uses: davelosert/vitest-coverage-report-action@v2
+              with:
+                  json-summary-path: ./coverage/coverage-summary.json

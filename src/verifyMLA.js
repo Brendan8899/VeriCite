@@ -1,4 +1,4 @@
-const { extractUrl, checkUrlExists, isValidUrl } = require('./verifyAPA');
+import { extractUrl, checkUrlExists, isValidUrl } from '../utility.js';
 
 // MLA year is a bare 4-digit number near the end, no parentheses
 function hasYearMLA(citation) {

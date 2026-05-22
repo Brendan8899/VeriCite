@@ -1,4 +1,5 @@
 import { isValidAPA } from '../src/verifyAPA.js';
+import { isValidIEEE } from '../src/verifyIEEE.js';
 import { isGoogleDocsUrl } from './utility.js';
 
 let token = null;
@@ -122,7 +123,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 					} else if (message.citationFormat === 'Chicago') {
 						// validityResult = await isValidChicago(i);
 					} else if (message.citationFormat === 'IEEE') {
-						// validityResult = await isValidIEEE(i);
+						validityResult = await isValidIEEE(i);
 					}
 					if (validityResult) {
 						result.push({ i, validityResult });

@@ -1,7 +1,7 @@
-import { isValidUrl } from '../utility.js';
+import { isValidUrl, normalizeWhitespace } from '../utility.js';
 
 // Check if the reference has a year in parentheses and if its a valid year or no date
-function hasYear(citation) {
+export function hasYear(citation) {
 	// Get the current year in the system to check for future years in the citation
 	const currentYear = new Date().getFullYear();
 
@@ -28,7 +28,7 @@ export async function isValidAPA(citation) {
 	const errors = [];
 	const warnings = [];
 	// Replace multiple consecutive whitespace character with a single space and trim Leading/trailing whitespace
-	const normalised = citation.replace(/\s+/g, ' ').trim();
+	const normalised = normalizeWhitespace(citation);
 
 	// Check if the Author Exists and is in the correct format (Lastname, F. M.)
 	// [a-zA-ZÀ-ÖØ-öø-ÿ\-] represents the set of all English and European Language Characters, including accented characters and hyphenated names

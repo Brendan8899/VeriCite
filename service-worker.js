@@ -116,7 +116,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				// Paragraphs are defined as text seperated by a newline character in the document
 				const paragraphs = extractParagraphsFromGoogleDoc(doc);
 				// Afterward, use keywords (references|bibliography|works cited) to find where the references start from
-				const references = extractReferencesFromParagraphs(paragraphs);
+				let references = extractReferencesFromParagraphs(paragraphs);
 
 				// if the format is IEEE, possible to do inference of references, even if the same reference is split into multiple paragraphs
 				if (message.citationFormat === 'IEEE') {

@@ -6,9 +6,10 @@ export default mergeConfig(
 	baseConfig,
 	defineConfig({
 		test: {
-			reporters: ['github-actions', 'json'],
+			reporters: ['github-actions', 'junit', 'json'],
 			outputFile: {
-				json: './ctrf-report.json',
+				junit: './junit.xml',
+				json: './jest-results.json',
 			},
 			coverage: {
 				enabled: true,

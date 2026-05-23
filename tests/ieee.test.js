@@ -1,4 +1,4 @@
-import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
+import { test, describe, expect } from 'vitest';
 
 import { isValidIEEE } from '../src/verifyIEEE';
 import { normalizeWhitespace } from '../utility/utility.js';

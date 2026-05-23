@@ -136,8 +136,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 					}
 					if (validityResult) {
 						result.push({ i, validityResult });
-					} else {
-						pass;
 					}
 				}
 				console.log('Processing complete', result);

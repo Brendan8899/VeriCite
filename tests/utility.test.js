@@ -1,6 +1,6 @@
-import { vi, test, describe, expect } from 'vitest';
+import { test, describe, expect } from 'vitest';
 
-import { extractUrl, checkUrlExists } from '../utility.js';
+import { extractUrl, checkUrlExists } from '../utility/utility.js';
 
 describe('extractUrl - pulls URL out of citation string', () => {
 	test('extracts a valid https URL', () => {

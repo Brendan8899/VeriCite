@@ -1,4 +1,4 @@
-import { isValidUrl, normalizeWhitespace } from '../utility.js';
+import { isValidUrl, normalizeWhitespace } from '../utility/utility.js';
 
 // Check if the reference has a year in parentheses and if its a valid year or no date
 export function hasYear(citation) {

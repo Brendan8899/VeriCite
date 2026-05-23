@@ -1,6 +1,7 @@
 import { isValidAPA } from '../src/verifyAPA.js';
 import { isValidIEEE } from '../src/verifyIEEE.js';
-import { isGoogleDocsUrl } from './utility.js';
+import { reconstituteIEEEReferences } from './utility/IEEEParser.js';
+import { isGoogleDocsUrl } from './utility/utility.js';
 
 let token = null;
 
@@ -112,8 +113,16 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		fetchGoogleDoc(documentId)
 			.then(async (doc) => {
 				let result = [];
+				// Paragraphs are defined as text seperated by a newline character in the document
 				const paragraphs = extractParagraphsFromGoogleDoc(doc);
+				// Afterward, use keywords (references|bibliography|works cited) to find where the references start from
 				const references = extractReferencesFromParagraphs(paragraphs);
+
+				// if the format is IEEE, possible to do inference of references, even if the same reference is split into multiple paragraphs
+				if (message.citationFormat === 'IEEE') {
+					references = reconstituteIEEEReferences(references);
+				}
+
 				for (let i of references) {
 					let validityResult = null;
 					if (message.citationFormat === 'APA') {

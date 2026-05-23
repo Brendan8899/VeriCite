@@ -1,4 +1,4 @@
-import { isValidUrl, normalizeWhitespace } from '../utility.js';
+import { isValidUrl, normalizeWhitespace } from '../utility/utility.js';
 
 const IEEE_INDEX_NUMBER_REGEX = /^\[\d+\]/;
 
@@ -7,7 +7,7 @@ const IEEE_INDEX_NUMBER_REGEX = /^\[\d+\]/;
 const IEEE_AUTHOR_INDEX_REGEX =
 	/^\[\d+\]\s([A-Z]\.\s)+[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ\-]+(,\s[A-Z]\.\s?[A-Z]\.)?/;
 const IEEE_ORG_AUTHOR_INDEX_REGEX =
-	/^\[\d+\]\s[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*\./;
+	/^\[\d+\]\s[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*[.,]/;
 
 // Check for the presence of no space in between index number and author names e.g. [1]Smith, J. or [1]World Health Organization.
 const IEEE_INDEX_NUMBER_NO_SPACE_AUTHOR_REGEX =
@@ -58,7 +58,7 @@ export async function isValidIEEE(citation) {
 		!IEEE_ORG_AUTHOR_INDEX_REGEX.test(citation)
 	) {
 		errors.push(
-			'Author names may be missing or not in the correct format (F. M. Lastname). Please check if the citation is complete.',
+			'Author Names and Organization Author Names may be missing or not in the correct format (F. M. Lastname). Please check if the citation is complete.',
 		);
 	}
 

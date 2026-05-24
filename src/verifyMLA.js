@@ -5,7 +5,7 @@ function hasYearMLA(citation) {
 	const currentYear = new Date().getFullYear();
 
 	// matches a bare year: ", 2021," or ", 2021."
-	const yearRegex = /,\s(\d{4})[,\.]/;
+	const yearRegex = /,\s(\d{4})[,.]/;
 	const match = citation.match(yearRegex);
 
 	if (!match) return { found: false, error: 'Year is missing' };
@@ -25,13 +25,13 @@ async function isValidMLA(citation) {
 
 	// --- 1. Author format check
 	// MLA first author: "Lastname, Firstname" — full first name, not initials
-	const authorRegex = /^([A-Z][a-zA-ZÀ-ÖØ-öø-ÿ\-]+,\s[A-Z][a-z]+|[A-Z][a-zA-Z\s]+\.)/;
+	const authorRegex = /^([A-Z][a-zA-ZÀ-ÖØ-öø-ÿ-]+,\s[A-Z][a-z]+|[A-Z][a-zA-Z\s]+\.)/;
 	if (!authorRegex.test(normalised)) {
 		errors.push('Author is missing or not correctly formatted');
 	}
 
 	// --- 2. Initials check — catches APA-style "Smith, J."
-	const initialsRegex = /^[A-Z][a-zA-Z\-]+,\s[A-Z]\./;
+	const initialsRegex = /^[A-Z][a-zA-Z-]+,\s[A-Z]\./;
 	if (initialsRegex.test(normalised)) {
 		errors.push('Author first name must be full, not abbreviated to initials');
 	}

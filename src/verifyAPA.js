@@ -32,7 +32,7 @@ export async function isValidAPA(citation) {
 
 	// Check if the Author Exists and is in the correct format (Lastname, F. M.)
 	// [a-zA-ZÀ-ÖØ-öø-ÿ\-] represents the set of all English and European Language Characters, including accented characters and hyphenated names
-	const authorRegex = /^([A-Z][a-zA-ZÀ-ÖØ-öø-ÿ\-]+,\s[A-Z]\.(\s[A-Z]\.)?)/;
+	const authorRegex = /^([A-Z][a-zA-ZÀ-ÖØ-öø-ÿ-]+,\s[A-Z]\.(\s[A-Z]\.)?)/;
 	// Regex for Organization Names, e.g. "World Health Organization" or "Smithsonian Institution"
 	const orgAuthorRegex = /^[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*\./;
 	if (!authorRegex.test(normalised) && !orgAuthorRegex.test(normalised))

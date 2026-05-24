@@ -15,7 +15,8 @@ export async function checkUrlExists(url) {
 	try {
 		const response = await fetch(url, { method: 'HEAD' });
 		return response.ok;
-	} catch (e) {
+	} catch (error) {
+		console.error(error);
 		return false;
 	}
 }

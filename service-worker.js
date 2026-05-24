@@ -28,7 +28,6 @@ async function fetchGoogleDoc(documentId) {
 
 // Filter out irrelevant elements from doc.body.content
 function extractParagraphsFromGoogleDoc(doc) {
-	console.log(doc.body.content);
 	return (doc.body?.content || [])
 		.map((element) => paragraphToText(element.paragraph))
 		.filter(Boolean);

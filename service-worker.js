@@ -119,9 +119,10 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				let references = extractReferencesFromParagraphs(paragraphs);
 
 				// if the format is IEEE, possible to do inference of references, even if the same reference is split into multiple paragraphs
-				if (message.citationFormat === 'IEEE') {
-					references = reconstituteIEEEReferences(references);
-				}
+				// if (message.citationFormat === 'IEEE') {
+				// 	references = reconstituteIEEEReferences(references);
+				// 	console.log('references: ' + references)
+				// }
 
 				for (let i of references) {
 					let validityResult = null;
@@ -132,6 +133,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 					} else if (message.citationFormat === 'Chicago') {
 						// validityResult = await isValidChicago(i);
 					} else if (message.citationFormat === 'IEEE') {
+						console.log('comes into IEEE Branch')
 						validityResult = await isValidIEEE(i);
 					}
 					if (validityResult) {

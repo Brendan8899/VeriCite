@@ -9,16 +9,17 @@ export function buildGoogleBooksQuery(citation, fields) {
 	// Replace Hyphens with no space in ISBN Number if Applicable
 	// Return constructedFieldQuery if ISBN is Available
 	if (fields.isbn) {
-		constructedFieldQuery.isbn =`${fields.isbn.replace(/[-\s]/g, '')}`;
-		return constructedFieldQuery;
-	} 
+		constructedFieldQuery.isbn = `${fields.isbn.replace(/[-\s]/g, '')}`;
+		return encodeURIComponent(JSON.stringify(fields));
+	}
 
 	// Construct query parts based on field information availability
 	if (fields.title) constructedFieldQuery.intitle = fields.title;
 	if (fields.author) constructedFieldQuery.inauthor = fields.author;
 	if (fields.publisher) constructedFieldQuery.inpublisher = fields.publisher;
 
-	const finalBooksQuery = encodeURIComponent(citation) + '+' + new constructedFieldQuery(params).toString();
+	const finalBooksQuery =
+		encodeURIComponent(citation) + '+' + encodeURIComponent(JSON.stringify(fields));
 
 	return finalBooksQuery;
 }
@@ -41,15 +42,16 @@ export function includesComparable(source, target) {
 	const normalizedTarget = normalizeForCompare(target);
 	return Boolean(
 		normalizedSource &&
-			normalizedTarget &&
-			(normalizedSource.includes(normalizedTarget) ||
-				normalizedTarget.includes(normalizedSource)),
+		normalizedTarget &&
+		(normalizedSource.includes(normalizedTarget) || normalizedTarget.includes(normalizedSource)),
 	);
 }
 
 // Normalize ISBN Values by dropping all hyphens and replacing with empty string
 export function normalizeIsbn(value) {
-	return String(value || '').replace(/[-\s]/g, '').toUpperCase();
+	return String(value || '')
+		.replace(/[-\s]/g, '')
+		.toUpperCase();
 }
 
 // Scoring the Books that Google Book API returned to show Best Match
@@ -58,7 +60,7 @@ export function scoreBookMatch(fields, book) {
 
 	// ISBN is the strongest signal because it identifies a specific book edition.
 	if (fields.isbn && book.isbn && normalizeIsbn(fields.isbn) === normalizeIsbn(book.isbn)) {
-		score += 100;
+		score += 4;
 	}
 
 	// Title match is the next most reliable signal from a citation.
@@ -90,9 +92,7 @@ export async function verifySource(citation, citationFormat) {
 	const fields = extractSourceFields(citation, citationFormat);
 	const query = buildGoogleBooksQuery(citation, fields);
 
-	const response = await fetch(
-		`${GOOGLE_BOOKS_API_URL}?q=${query}`,
-	);
+	const response = await fetch(`${GOOGLE_BOOKS_API_URL}?q=${query}`);
 
 	if (!response.ok) {
 		return {

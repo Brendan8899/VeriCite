@@ -3,8 +3,10 @@ const YEAR_REGEX = /\b(?:18|19|20)\d{2}\b/;
 
 // Finds an ISBN-10 or ISBN-13, with optional "ISBN", hyphens, or spaces.
 // ISBN-10 is 10 Digits Long Legacy Version, ISBN-13 is 13-Digit Long Modern Version
-const ISBN_10_REGEX = /^(?:ISBN(?:-10)?:?\s*)?(?=[0-9X]{10}$|(?=(?:[0-9]+[-\ ]){3})[-\ 0-9X]{13}$)[0-9]{1,5}[-\ ]?[0-9]+[-\ ]?[0-9]+[-\ ]?[0-9X]$/;
-const ISBN_13_REGEX = /^(?:ISBN(?:-13)?:?\s*)?(?=[0-9]{13}$|(?=(?:[0-9]+[-\ ]){4})[-\ 0-9]{17}$)97[89][-\ ]?[0-9]{1,5}[-\ ]?[0-9]+[-\ ]?[0-9]+[-\ ]?[0-9]$/
+const ISBN_10_REGEX =
+	/^(?:ISBN(?:-10)?:?\s*)?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$)[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/;
+const ISBN_13_REGEX =
+	/^(?:ISBN(?:-13)?:?\s*)?(?=[0-9]{13}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)97[89][- ]?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9]$/;
 
 // Finds a title wrapped in straight quotes or curly opening/closing quotes.
 // ["\u201c] refers to Opening Quotes
@@ -18,23 +20,19 @@ const APA_PERSON_AUTHOR_REGEX = /^(.+?)\s*\((?:\d{4}|n\.d\.)[^)]*\)\./i;
 // Finds the APA title after the year, e.g. "(2024). Book title."
 const APA_TITLE_REGEX = /\((?:\d{4}|n\.d\.)[^)]*\)\.\s+(.+?)\./i;
 
-// Finds and removes the IEEE reference index at the start, e.g. "[1] ".
-const IEEE_INDEX_REGEX = /^\[\d+\]\s*/;
-
 // Finds the Person Author Names in IEEE Citation in the form of F. Lastname or F. M. Lastname
-const IEEE_PERSON_AUTHOR_REGEX =
-  /[A-Z]\.\s*(?:[A-Z]\.\s*)?[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ'’.-]+/g;
+const IEEE_PERSON_AUTHOR_REGEX = /[A-Z]\.\s*(?:[A-Z]\.\s*)?[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ'’.-]+/g;
 
 // Finds the Organization Author Name in IEEE Citation
 const IEEE_ORG_AUTHOR_REGEX =
-  /^\[\d+\]\s+([A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(?:\s+[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*)[.,]/;
+	/^\[\d+\]\s+([A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(?:\s+[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*)[.,]/;
 
 function matchField(text, regex, group) {
 	const match = text.match(regex);
 	if (match && match.length && match.length <= group) {
 		return match[group];
 	} else {
-		return ''
+		return '';
 	}
 }
 
@@ -48,12 +46,12 @@ function extractTitle(citation, citationFormat) {
 		else if (quotedTitle === '') {
 			// To Do: Use Text Style Italics in Order to Extract
 			// @Brendan8899
-			return ''
+			return '';
 		}
 	} else if (citationFormat === 'APA') {
 		const quotedTitle = matchField(citation, APA_TITLE_REGEX, 1);
 		if (quotedTitle !== '') {
-			return quotedTitle
+			return quotedTitle;
 		} else {
 			return '';
 		}
@@ -73,9 +71,9 @@ function extractAuthors(citation, citationFormat) {
 			// If ieeeAuthors is Empty, it could be because its an Organizational Author, so we try to extract Organizational Author Name
 			const ieeeOrgAuthor = matchField(citation, IEEE_ORG_AUTHOR_REGEX, 1);
 			if (ieeeOrgAuthor !== '') return [ieeeOrgAuthor];
-			else return []
+			else return [];
 		}
-	} else if (citationFormat === 'APA') {	
+	} else if (citationFormat === 'APA') {
 		// APA places the author section before the year in parentheses.
 		const apaAuthor = matchField(citation, APA_PERSON_AUTHOR_REGEX, 1);
 		if (apaAuthor) return [apaAuthor];
@@ -86,7 +84,7 @@ function extractAuthors(citation, citationFormat) {
 }
 
 // Do ISBN Extraction for the Citation
-function extractISBN(citation, citationFormat) {
+function extractISBN(citation) {
 	if (ISBN_13_REGEX.test(citation)) {
 		const fullISBNtext = matchField(citation, ISBN_13_REGEX, 0);
 		return cleanISBN(fullISBNtext);
@@ -110,13 +108,13 @@ export function extractSourceFields(citation, citationFormat) {
 	const title = extractTitle(citation, citationFormat);
 	const authors = extractAuthors(citation, citationFormat);
 	const year = matchField(citation, YEAR_REGEX, 0);
-	const isbn = extractISBN(citation, citationFormat);
+	const isbn = extractISBN(citation);
 
 	return {
 		title,
 		authors,
 		author: authors[0] || '',
 		year,
-		isbn: isbn ? isbn : null
+		isbn: isbn ? isbn : null,
 	};
 }

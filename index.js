@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// Send a message to the service worker to begin processing
 		// include citationFormat, referencesStartPage and the current active tab in the message
 		try {
-			const response = await browser.runtime.sendMessage({
+			const _ = await browser.runtime.sendMessage({
 				type: 'BEGIN_PROCESSING',
 				citationFormat: format,
 				tab: currentTab,

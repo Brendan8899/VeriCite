@@ -5,13 +5,13 @@ const IEEE_INDEX_NUMBER_REGEX = /^\[\d+\]/;
 // Check for the presence of author names, which should be in the format "F. M. Lastname" of "F. Lastname" after the index number in square brackets
 // Check for the presence of organization author names after the index number in square brackets e.g. [1] World Health Organization.
 const IEEE_AUTHOR_INDEX_REGEX =
-	/^\[\d+\]\s([A-Z]\.\s)+[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ\-]+(,\s[A-Z]\.\s?[A-Z]\.)?/;
+	/^\[\d+\]\s([A-Z]\.\s)+[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ-]+(,\s[A-Z]\.\s?[A-Z]\.)?/;
 const IEEE_ORG_AUTHOR_INDEX_REGEX =
 	/^\[\d+\]\s[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*[.,]/;
 
 // Check for the presence of no space in between index number and author names e.g. [1]Smith, J. or [1]World Health Organization.
 const IEEE_INDEX_NUMBER_NO_SPACE_AUTHOR_REGEX =
-	/^\[\d+\]([A-Z]\.\s)+[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ\-]+(,\s[A-Z]\.\s?[A-Z]\.)?/;
+	/^\[\d+\]([A-Z]\.\s)+[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ-]+(,\s[A-Z]\.\s?[A-Z]\.)?/;
 const IEEE_INDEX_NUMBER_NO_SPACE_ORG_AUTHOR_REGEX =
 	/^\[\d+\][A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*\./;
 

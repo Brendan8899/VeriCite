@@ -133,7 +133,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 					} else if (message.citationFormat === 'Chicago') {
 						// validityResult = await isValidChicago(i);
 					} else if (message.citationFormat === 'IEEE') {
-						console.log('comes into IEEE Branch')
 						validityResult = await isValidIEEE(i);
 					}
 					if (validityResult) {

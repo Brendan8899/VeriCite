@@ -1,5 +1,5 @@
-import { isValidAPA } from '../src/verifyAPA.js';
-import { isValidIEEE } from '../src/verifyIEEE.js';
+import { isValidAPA } from './src/verifyAPA.js';
+import { isValidIEEE } from './src/verifyIEEE.js';
 import { reconstituteIEEEReferences } from './utility/IEEEParser.js';
 import { isGoogleDocsUrl } from './utility/utility.js';
 
@@ -28,6 +28,7 @@ async function fetchGoogleDoc(documentId) {
 
 // Filter out irrelevant elements from doc.body.content
 function extractParagraphsFromGoogleDoc(doc) {
+	console.log(doc.body.content)
 	return (doc.body?.content || [])
 		.map((element) => paragraphToText(element.paragraph))
 		.filter(Boolean);

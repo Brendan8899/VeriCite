@@ -1,6 +1,6 @@
 import { isValidAPA } from './src/verifyAPA.js';
 import { isValidIEEE } from './src/verifyIEEE.js';
-import { reconstituteIEEEReferences } from './utility/IEEEParser.js';
+// import { reconstituteIEEEReferences } from './utility/IEEEParser.js';
 import { isGoogleDocsUrl } from './utility/utility.js';
 
 let token = null;

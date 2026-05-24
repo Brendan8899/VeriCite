@@ -1,4 +1,4 @@
-import IEEE_ALL_REGEX from '../src/verifyIEEE.js';
+import { IEEE_ALL_REGEX } from '../src/verifyIEEE.js';
 
 const { IEEE_INDEX_NUMBER_REGEX } = IEEE_ALL_REGEX;
 // IEEEParser to reconstruct correct IEEE references in case the user has newline characters in the same references

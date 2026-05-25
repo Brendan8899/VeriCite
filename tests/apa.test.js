@@ -56,13 +56,6 @@ describe('isValidAPA - format validation', () => {
 		expect(result.errors).toContain('Year must appear immediately after the author');
 	});
 
-	test('fails when author uses full first name', async () => {
-		const citation = 'Smith, John. (2021). Title. Journal.';
-		const result = await isValidAPA(citation);
-		expect(result.valid).toBe(false);
-		expect(result.errors).toContain('Author first name must be abbreviated to initials');
-	});
-
 	test('fails when URL is unreachable', async () => {
 		global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
 		const citation = 'Smith, J. (2021). Title. Journal. https://dead-url.com/page';

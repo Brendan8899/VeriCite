@@ -48,7 +48,7 @@ export async function isValidAPA(citation) {
 		}
 	}
 
-	// Regex for Organization Names and Year in parentheses, e.g. World Health Organization, 2021 or World Health Organization, n.d.
+	// Regex for Organization Names and Year in parentheses, e.g. World Health Organization. (2021) or World Health Organization. (n.d.)
 
 	const yearAfterOrgAuthor =
 		/[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*\.\s\((\d{4}|n\.d\.)\)/;

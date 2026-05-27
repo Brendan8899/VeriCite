@@ -156,7 +156,7 @@ export async function verifySource(citation, citationFormat, userToken) {
 	const resultErrors = [];
 
 	if (bestMatch) {
-		if (bestMatch.score >= 3) {
+		if (bestMatch.score < 3) {
 			resultErrors.push('Book found may not be matching. Please verify if reference exists.');
 		}
 	} else if (!bestMatch) {

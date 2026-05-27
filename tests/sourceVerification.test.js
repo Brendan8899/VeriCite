@@ -39,7 +39,7 @@ describe('includesComparable: compares normalized text in either direction', () 
 		expect(
 			includesComparable(
 				'Clean Code',
-				'Martin, R. C. (2008). Clean Code: A Handbook of Agile Software Craftsmanship.'
+				'Martin, R. C. (2008). Clean Code: A Handbook of Agile Software Craftsmanship.',
 			),
 		).toBe(true);
 	});
@@ -191,7 +191,11 @@ describe('verifySource: verifies citations through Google Books', () => {
 			}),
 		});
 
-		const result = await verifySource('A citation that mentions Clean Code only.', 'APA', 'test-token');
+		const result = await verifySource(
+			'A citation that mentions Clean Code only.',
+			'APA',
+			'test-token',
+		);
 
 		// toMatchObject only checks the fields tjhat are expected, there could be more fields in results
 		expect(result).toMatchObject({

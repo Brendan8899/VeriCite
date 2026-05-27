@@ -1,5 +1,4 @@
 import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
-
 import { hasYear, isValidAPA } from '../src/verifyAPA';
 
 describe('hasYear', () => {

@@ -1,14 +1,7 @@
-<<<<<<< HEAD
 import { verifySource } from './src/sourceVerificationEngine/sourceVerification.js';
 import { isValidAPA } from './src/verifyAPA.js';
 import { isValidIEEE } from './src/verifyIEEE.js';
 import { isGoogleDocsUrl, normalizeWhitespace } from './utility/utility.js';
-=======
-import { isValidAPA } from './src/verifyAPA.js';
-import { isValidIEEE } from './src/verifyIEEE.js';
-// import { reconstituteIEEEReferences } from './utility/IEEEParser.js';
-import { isGoogleDocsUrl } from './utility/utility.js';
->>>>>>> main
 
 let token = null;
 
@@ -128,9 +121,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				);
 				for (let i of references) {
 					let validityResult = null;
-					console.log('1');
 					const verificationResult = await verifySource(i, message.citationFormat, token);
-					console.log('2');
 					if (message.citationFormat === 'APA') {
 						validityResult = await isValidAPA(i);
 					} else if (message.citationFormat === 'MLA') {

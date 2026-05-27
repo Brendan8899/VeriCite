@@ -34,14 +34,14 @@ export async function isValidAPA(citation) {
 	// Regex for Organization Names, e.g. "World Health Organization" or "Smithsonian Institution"
 	const orgAuthorRegex = /^[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*\./;
 
-	if (!authorRegex.test(normalised) && !orgAuthorRegex.test(normalised))
+	if (!authorRegex.test(citation) && !orgAuthorRegex.test(citation))
 		errors.push('Author or Organization Author is missing or not correctly formatted');
 
 	const yearAfterAuthorRegex =
 		/[A-Z][a-zA-ZÀ-ÖØ-öø-ÿ-]+,\s[A-Z]\.(\s[A-Z]\.)?\s\((\d{4}|n\.d\.)(,\s[^)]+)?\)/;
 
-	if (authorRegex.test(normalised)) {
-		if (!yearAfterAuthorRegex.test(normalised)) {
+	if (authorRegex.test(citation)) {
+		if (!yearAfterAuthorRegex.test(citation)) {
 			errors.push('Year must appear immediately after the author');
 		}
 	}
@@ -51,8 +51,8 @@ export async function isValidAPA(citation) {
 	const yearAfterOrgAuthor =
 		/[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*\.\s\((\d{4}|n\.d\.)(,\s[^)]+)?\)/;
 
-	if (orgAuthorRegex.test(normalised)) {
-		if (!yearAfterOrgAuthor.test(normalised)) {
+	if (orgAuthorRegex.test(citation)) {
+		if (!yearAfterOrgAuthor.test(citation)) {
 			errors.push('Year must appear immediately after the author');
 		}
 	}

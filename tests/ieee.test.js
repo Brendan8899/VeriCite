@@ -113,7 +113,6 @@ describe('isValidIEEE - format validation', () => {
 			`[5] Council of Biology Editors, Scientific Style and Format: The CBE Manual for Authors, Editors, and Publishers, 6th ed., Chicago: Cambridge University Press, 2006.`,
 		);
 		const result = await isValidIEEE(normalizeOrganizationAuthorBook);
-		console.log(result);
 		expect(result.valid).toBe(true);
 		expect(result.errors).toHaveLength(0);
 	});

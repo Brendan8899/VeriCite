@@ -116,7 +116,7 @@ export function transformGoogleBookItem(rawGoogleBookItem) {
 				(industryIdentifier?.type === 'ISBN_10' || industryIdentifier.type === 'ISBN_13') &&
 				industryIdentifier.identifier
 			) {
-				result.isbn.push(industryIdentifier);
+				result.isbn.push(industryIdentifier.identifier);
 			}
 		}
 	}

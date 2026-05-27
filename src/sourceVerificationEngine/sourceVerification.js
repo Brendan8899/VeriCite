@@ -1,24 +1,6 @@
 // Google Books API from https://developers.google.com/books/docs/v1/using#PerformingSearch
 const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
 
-// Build the Google Books API URL Query Parameters to get the Best Search Possible
-export function buildGoogleBooksFields(citation, fields) {
-	let constructedFieldQuery = {};
-	// Replace Hyphens with no space in ISBN Number if Applicable
-	// Return constructedFieldQuery if ISBN is Available
-	if (fields.isbn) {
-		constructedFieldQuery.isbn = `${fields.isbn.replace(/[-\s]/g, '')}`;
-		return encodeURIComponent(JSON.stringify(fields));
-	}
-
-	// Construct query parts based on field information availability
-	if (fields.title) constructedFieldQuery.intitle = fields.title;
-	if (fields.author) constructedFieldQuery.inauthor = fields.author;
-	if (fields.publisher) constructedFieldQuery.inpublisher = fields.publisher;
-
-	return constructedFieldQuery;
-}
-
 // Normalize text so citation fields and Google Books results can be compared
 //  without casing or punctuation differences.
 export function normalizeForCompare(value) {

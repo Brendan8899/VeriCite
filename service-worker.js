@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import { verifySource } from './src/sourceVerificationEngine/sourceVerification.js';
 import { isValidAPA } from './src/verifyAPA.js';
 import { isValidIEEE } from './src/verifyIEEE.js';
 import { isGoogleDocsUrl, normalizeWhitespace } from './utility/utility.js';
+=======
+import { isValidAPA } from './src/verifyAPA.js';
+import { isValidIEEE } from './src/verifyIEEE.js';
+// import { reconstituteIEEEReferences } from './utility/IEEEParser.js';
+import { isGoogleDocsUrl } from './utility/utility.js';
+>>>>>>> main
 
 let token = null;
 

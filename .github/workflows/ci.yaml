@@ -20,7 +20,7 @@ jobs:
         task:
           - { name: 'Formatting', command: 'pnpm run fmt:check' }
           - { name: 'Linting', command: 'pnpm run lint --format=github' }
-          - { name: 'Testing', command: 'pnpm run test:coverage' }
+          - { name: 'Testing', command: 'pnpm run test:ci' }
 
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +40,15 @@ jobs:
 
       - name: Run Task Command
         run: ${{ matrix.task.command }}
+
+      - name: Report tests
+        if: matrix.task.name == 'Testing' && always()
+        uses: im-open/process-jest-test-results@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          results-file: ./jest-results.json
+          report-name: Test Results
+          comment-identifier: '${{ matrix.node-version }}-failures'
 
       - name: Report Coverage
         if: matrix.task.name == 'Testing' && always()

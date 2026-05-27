@@ -1,24 +1,21 @@
 import { defineConfig } from 'vitest/config';
 
-const isCI = !!process.env.CI;
-
 export default defineConfig({
 	test: {
-		reporters: isCI ? ['default', 'github-actions'] : ['default'],
+		reporters: ['dot', 'default'],
 		coverage: {
 			provider: 'v8',
-			enabled: true,
 			reportOnFailure: true,
 			reportsDirectory: './coverage',
-			reporter: isCI ? ['text', 'json', 'json-summary'] : ['text', 'html'],
+			reporter: ['text', 'html'],
 
 			thresholds: undefined,
-			// thresholds: isCI ? {
+			// thresholds: {
 			// 	lines: 80,
 			// 	branches: 80,
 			// 	functions: 80,
 			// 	statements: 80
-			// } : undefined,
+			// },
 		},
 	},
 });

@@ -1,7 +1,7 @@
+import { verifySource } from './src/sourceVerificationEngine/sourceVerification.js';
 import { isValidAPA } from './src/verifyAPA.js';
 import { isValidIEEE } from './src/verifyIEEE.js';
-import { reconstituteIEEEReferences } from './utility/IEEEParser.js';
-import { isGoogleDocsUrl } from './utility/utility.js';
+import { isGoogleDocsUrl, normalizeWhitespace } from './utility/utility.js';
 
 let token = null;
 
@@ -116,16 +116,14 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				// Paragraphs are defined as text seperated by a newline character in the document
 				const paragraphs = extractParagraphsFromGoogleDoc(doc);
 				// Afterward, use keywords (references|bibliography|works cited) to find where the references start from
-				let references = extractReferencesFromParagraphs(paragraphs);
-
-				// if the format is IEEE, possible to do inference of references, even if the same reference is split into multiple paragraphs
-				// if (message.citationFormat === 'IEEE') {
-				// 	references = reconstituteIEEEReferences(references);
-				// 	console.log('references: ' + references)
-				// }
-
+				const references = extractReferencesFromParagraphs(paragraphs).map((reference) =>
+					normalizeWhitespace(reference),
+				);
 				for (let i of references) {
 					let validityResult = null;
+					console.log('1');
+					const verificationResult = await verifySource(i, message.citationFormat, token);
+					console.log('2');
 					if (message.citationFormat === 'APA') {
 						validityResult = await isValidAPA(i);
 					} else if (message.citationFormat === 'MLA') {
@@ -133,10 +131,20 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 					} else if (message.citationFormat === 'Chicago') {
 						// validityResult = await isValidChicago(i);
 					} else if (message.citationFormat === 'IEEE') {
-						console.log('comes into IEEE Branch')
 						validityResult = await isValidIEEE(i);
 					}
 					if (validityResult) {
+						if (!verificationResult?.ok && verificationResult?.errors) {
+							validityResult.errors.push(...verificationResult.errors);
+						} else if (
+							verificationResult?.ok &&
+							!verificationResult?.valid &&
+							verificationResult?.errors
+						) {
+							validityResult.errors.push(...verificationResult.errors);
+						} else if (verificationResult?.ok && verificationResult?.valid) {
+							validityResult.sourceVerified = true;
+						}
 						result.push({ i, validityResult });
 					}
 				}

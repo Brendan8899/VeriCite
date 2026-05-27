@@ -1,10 +1,8 @@
-import { extractSourceFields } from './sourceFieldsExtraction.js';
-
 // Google Books API from https://developers.google.com/books/docs/v1/using#PerformingSearch
 const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
 
 // Build the Google Books API URL Query Parameters to get the Best Search Possible
-export function buildGoogleBooksQuery(citation, fields) {
+export function buildGoogleBooksFields(citation, fields) {
 	let constructedFieldQuery = {};
 	// Replace Hyphens with no space in ISBN Number if Applicable
 	// Return constructedFieldQuery if ISBN is Available
@@ -18,10 +16,7 @@ export function buildGoogleBooksQuery(citation, fields) {
 	if (fields.author) constructedFieldQuery.inauthor = fields.author;
 	if (fields.publisher) constructedFieldQuery.inpublisher = fields.publisher;
 
-	const finalBooksQuery =
-		encodeURIComponent(citation) + '+' + encodeURIComponent(JSON.stringify(fields));
-
-	return finalBooksQuery;
+	return constructedFieldQuery;
 }
 
 // Normalize text so citation fields and Google Books results can be compared
@@ -55,45 +50,88 @@ export function normalizeIsbn(value) {
 }
 
 // Scoring the Books that Google Book API returned to show Best Match
-export function scoreBookMatch(fields, book) {
+export function scoreBookMatch(citation, transformedBook) {
 	let score = 0;
-
 	// ISBN is the strongest signal because it identifies a specific book edition.
-	if (fields.isbn && book.isbn && normalizeIsbn(fields.isbn) === normalizeIsbn(book.isbn)) {
-		score += 4;
+	// Transformed Book ISBN field is an Array of ISBN Numbers
+	if (citation && transformedBook.isbn && Array.isArray(transformedBook.isbn)) {
+		for (const isbnNumber of transformedBook.isbn) {
+			if (citation.includes(isbnNumber)) {
+				score += 4;
+			}
+		}
 	}
 
 	// Title match is the next most reliable signal from a citation.
-	if (fields.title && includesComparable(fields.title, book.title)) {
+	if (citation && includesComparable(citation, transformedBook.title)) {
 		score += 2;
 	}
 
 	// Give credit if any cited author appears in the Google Books author list.
-	if (fields.authors?.length && book.authors?.length) {
+	if (
+		citation &&
+		transformedBook?.authors &&
+		Array.isArray(transformedBook?.authors) &&
+		transformedBook.authors?.length
+	) {
 		// If the Authors Extracted Matches the Authors in the Book returned from Google Book API increment score\
-		for (let extracted_author in fields.author) {
-			for (let returned_author in book.authors) {
-				if (includesComparable(extracted_author, returned_author)) {
-					score += 1;
-				}
+		for (let returned_author of transformedBook.authors) {
+			if (includesComparable(citation, returned_author)) {
+				score += 1;
 			}
 		}
 	}
 
 	// Google Books usually returns a full date; compare only the year.
-	if (fields.year && book.publishedDate?.startsWith(fields.year)) {
+	if (citation && citation.includes(transformedBook?.publishedDate)) {
 		score += 1;
 	}
 
 	return score;
 }
 
-export async function verifySource(citation, citationFormat) {
-	const fields = extractSourceFields(citation, citationFormat);
-	const query = buildGoogleBooksQuery(citation, fields);
+// Transforms Raw Google Book Item returned by the API to a more accessible version for better score calculation
+export function transformGoogleBookItem(rawGoogleBookItem) {
+	const result = {};
+	// Authors Field is an Array
+	if (rawGoogleBookItem?.volumeInfo?.authors) {
+		result.authors = rawGoogleBookItem.volumeInfo.authors;
+		// Title Field is a String
+	}
+	if (rawGoogleBookItem?.volumeInfo?.title) {
+		result.title = rawGoogleBookItem.volumeInfo.title;
+		// Published Date is a String
+	}
+	if (rawGoogleBookItem?.volumeInfo?.publishedDate) {
+		result.publishedDate = rawGoogleBookItem.volumeInfo.publishedDate;
+		// industryIdentifiers is an Array of Items
+	}
+	if (
+		rawGoogleBookItem?.volumeInfo?.industryIdentifiers &&
+		Array.isArray(rawGoogleBookItem?.volumeInfo?.industryIdentifiers)
+	) {
+		result.isbn = [];
+		for (let industryIdentifier of rawGoogleBookItem.volumeInfo.industryIdentifiers) {
+			if (
+				(industryIdentifier?.type === 'ISBN_10' || industryIdentifier.type === 'ISBN_13') &&
+				industryIdentifier.identifier
+			) {
+				result.isbn.push(industryIdentifier);
+			}
+		}
+	}
+	return result;
+}
 
-	const response = await fetch(`${GOOGLE_BOOKS_API_URL}?q=${query}`);
-
+export async function verifySource(citation, citationFormat, userToken) {
+	const queryURL = new URL(GOOGLE_BOOKS_API_URL);
+	queryURL.searchParams.set('q', citation);
+	const response = await fetch(queryURL.toString(), {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${userToken}`,
+		},
+	});
 	if (!response.ok) {
 		return {
 			ok: false,
@@ -106,18 +144,30 @@ export async function verifySource(citation, citationFormat) {
 
 	const data = await response.json();
 	const matches = (data.items || [])
-		.map(mapGoogleBookItem)
-		.map((book) => ({ ...book, score: scoreBookMatch(fields, book) }))
+		.map((book) => {
+			return transformGoogleBookItem(book);
+		})
+		.map((transformedBook) => {
+			return { ...transformedBook, score: scoreBookMatch(citation, transformedBook) };
+		})
 		.sort((a, b) => b.score - a.score);
-
 	const bestMatch = matches[0] || null;
+
+	const resultErrors = [];
+
+	if (bestMatch) {
+		if (bestMatch.score >= 3) {
+			resultErrors.push('Book found may not be matching. Please verify if reference exists.');
+		}
+	} else if (!bestMatch) {
+		resultErrors.push('No matching book found in Google Books');
+	}
 
 	return {
 		ok: true,
 		valid: Boolean(bestMatch && bestMatch.score >= 3),
-		fields,
 		bestMatch,
 		matches,
-		errors: bestMatch ? [] : ['No matching book found in Google Books'],
+		errors: resultErrors,
 	};
 }

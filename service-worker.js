@@ -157,7 +157,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				}
 				const feedbackReport = await feedbackGeneration(result, documentId, token);
 				console.log('Processing complete', result);
-				console.log('Feedback report created', feedbackReport);
 
 				return {
 					ok: true,

@@ -60,8 +60,12 @@ function extractReferencesFromParagraphs(paragraphs) {
 
 function mergeErrorsAndWarnings(validityResults, verificationResults) {
 	const finalResults = validityResults;
-	finalResults.errors.push(...verificationResults.errors);
-	finalResults.warnings.push(...verificationResults.warnings);
+	if (verificationResults?.errors && finalResults?.errors) {
+		finalResults.errors.push(...verificationResults.errors);
+	}
+	if (verificationResults?.warnings && finalResults?.warnings) {
+		finalResults.warnings.push(...verificationResults.warnings);
+	}
 	return finalResults;
 }
 

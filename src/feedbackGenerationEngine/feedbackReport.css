@@ -1,0 +1,169 @@
+:root {
+	color-scheme: light;
+	font-family: Arial, Helvetica, sans-serif;
+	background: #f7f8fb;
+	color: #1f2937;
+}
+
+body {
+	margin: 0;
+	background: #f7f8fb;
+}
+
+main {
+	max-width: 1040px;
+	margin: 0 auto;
+	padding: 32px 20px 48px;
+}
+
+.report-header {
+	margin-bottom: 24px;
+}
+
+.report-header h1 {
+	margin: 0 0 8px;
+	font-size: 32px;
+	line-height: 1.15;
+}
+
+.report-header p {
+	margin: 0;
+	color: #5b6472;
+}
+
+.summary {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 12px;
+	margin: 24px 0;
+}
+
+.summary-item,
+.reference-card {
+	border: 1px solid #d9dee8;
+	border-radius: 8px;
+	background: #ffffff;
+}
+
+.summary-item {
+	padding: 16px;
+}
+
+.summary-item strong {
+	display: block;
+	font-size: 24px;
+	line-height: 1;
+}
+
+.summary-item span {
+	display: block;
+	margin-top: 6px;
+	color: #5b6472;
+	font-size: 14px;
+}
+
+.reference-card {
+	margin-top: 16px;
+	padding: 18px;
+}
+
+.reference-card header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	border-bottom: 1px solid #edf0f5;
+	padding-bottom: 14px;
+}
+
+.eyebrow {
+	margin: 0 0 6px;
+	color: #697386;
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+h2 {
+	margin: 0;
+	font-size: 18px;
+	line-height: 1.35;
+}
+
+h3,
+h4 {
+	margin: 0 0 8px;
+	font-size: 14px;
+}
+
+.status {
+	flex: 0 0 auto;
+	border-radius: 999px;
+	padding: 5px 10px;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.status-error {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.status-warning {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+.status-success {
+	background: #dcfce7;
+	color: #166534;
+}
+
+.status-neutral {
+	background: #e5e7eb;
+	color: #374151;
+}
+
+.reference-text,
+.feedback-block,
+.empty-feedback {
+	margin-top: 16px;
+}
+
+.reference-text p,
+.empty-feedback {
+	margin: 0;
+	color: #374151;
+	line-height: 1.5;
+}
+
+.feedback-block {
+	border-left: 4px solid #cbd5e1;
+	padding-left: 12px;
+}
+
+.feedback-block.errors {
+	border-left-color: #ef4444;
+}
+
+.feedback-block.warnings {
+	border-left-color: #f59e0b;
+}
+
+.feedback-block ul {
+	margin: 0;
+	padding-left: 20px;
+}
+
+.feedback-block li {
+	margin: 6px 0;
+	line-height: 1.45;
+}
+
+.empty-state {
+	border: 1px dashed #b8c0cc;
+	border-radius: 8px;
+	padding: 24px;
+	background: #ffffff;
+	color: #5b6472;
+}

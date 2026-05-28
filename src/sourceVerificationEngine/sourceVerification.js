@@ -136,10 +136,11 @@ export async function verifySource(citation, citationFormat, userToken) {
 	const bestMatch = matches[0] || null;
 
 	const resultErrors = [];
+	const resultWarning = [];
 
 	if (bestMatch) {
 		if (bestMatch.score < 3) {
-			resultErrors.push('Book found may not be matching. Please verify if reference exists.');
+			resultWarning.push('Book found may not be matching. Please verify if reference exists.');
 		}
 	} else if (!bestMatch) {
 		resultErrors.push('No matching book found in Google Books');
@@ -151,5 +152,6 @@ export async function verifySource(citation, citationFormat, userToken) {
 		bestMatch,
 		matches,
 		errors: resultErrors,
+		warnings: resultWarning,
 	};
 }

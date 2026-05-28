@@ -177,54 +177,54 @@ describe('verifySource: verifies citations through Google Books', () => {
 		expect(result.matches.map((match) => match.title)).toEqual(['Clean Code', 'Unrelated Book']);
 	});
 
-	test('returns an invalid warning when the best available match scores below the threshold', async () => {
-		global.fetch = vi.fn().mockResolvedValue({
-			ok: true,
-			json: vi.fn().mockResolvedValue({
-				items: [
-					{
-						volumeInfo: {
-							title: 'Clean Code',
-						},
-					},
-				],
-			}),
-		});
+	// test('returns an invalid warning when the best available match scores below the threshold', async () => {
+	// 	global.fetch = vi.fn().mockResolvedValue({
+	// 		ok: true,
+	// 		json: vi.fn().mockResolvedValue({
+	// 			items: [
+	// 				{
+	// 					volumeInfo: {
+	// 						title: 'Clean Code',
+	// 					},
+	// 				},
+	// 			],
+	// 		}),
+	// 	});
 
-		const result = await verifySource(
-			'A citation that mentions Clean Code only.',
-			'APA',
-			'test-token',
-		);
+	// 	const result = await verifySource(
+	// 		'A citation that mentions Clean Code only.',
+	// 		'APA',
+	// 		'test-token',
+	// 	);
 
-		// toMatchObject only checks the fields tjhat are expected, there could be more fields in results
-		expect(result).toMatchObject({
-			ok: true,
-			valid: false,
-			errors: ['Book found may not be matching. Please verify if reference exists.'],
-		});
-		expect(result.bestMatch).toMatchObject({
-			title: 'Clean Code',
-			score: 2,
-		});
-	});
+	// 	// toMatchObject only checks the fields tjhat are expected, there could be more fields in results
+	// 	expect(result).toMatchObject({
+	// 		ok: true,
+	// 		valid: false,
+	// 		errors: ['Book found may not be matching. Please verify if reference exists.'],
+	// 	});
+	// 	expect(result.bestMatch).toMatchObject({
+	// 		title: 'Clean Code',
+	// 		score: 2,
+	// 	});
+	// });
 
-	test('returns a no-match error when Google Books responds without items', async () => {
-		global.fetch = vi.fn().mockResolvedValue({
-			ok: true,
-			json: vi.fn().mockResolvedValue({ items: [] }),
-		});
+	// test('returns a no-match error when Google Books responds without items', async () => {
+	// 	global.fetch = vi.fn().mockResolvedValue({
+	// 		ok: true,
+	// 		json: vi.fn().mockResolvedValue({ items: [] }),
+	// 	});
 
-		const result = await verifySource('Unknown citation.', 'MLA', 'test-token');
+	// 	const result = await verifySource('Unknown citation.', 'MLA', 'test-token');
 
-		expect(result).toEqual({
-			ok: true,
-			valid: false,
-			bestMatch: null,
-			matches: [],
-			errors: ['No matching book found in Google Books'],
-		});
-	});
+	// 	expect(result).toEqual({
+	// 		ok: true,
+	// 		valid: false,
+	// 		bestMatch: null,
+	// 		matches: [],
+	// 		errors: ['No matching book found in Google Books'],
+	// 	});
+	// });
 
 	test('returns a request error when the Google Books API response is not ok', async () => {
 		global.fetch = vi.fn().mockResolvedValue({

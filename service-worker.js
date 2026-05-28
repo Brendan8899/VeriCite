@@ -60,8 +60,12 @@ function extractReferencesFromParagraphs(paragraphs) {
 
 function mergeErrorsAndWarnings(validityResults, verificationResults) {
 	const finalResults = validityResults;
-	finalResults.errors.push(...verificationResults.errors);
-	finalResults.warnings.push(...verificationResults.warnings);
+	if (verificationResults?.errors && finalResults?.errors) {
+		finalResults.errors.push(...verificationResults.errors);
+	}
+	if (verificationResults?.warnings && finalResults?.warnings) {
+		finalResults.warnings.push(...verificationResults.warnings);
+	}
 	return finalResults;
 }
 
@@ -157,7 +161,6 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				}
 				const feedbackReport = await feedbackGeneration(result, documentId, token);
 				console.log('Processing complete', result);
-				console.log('Feedback report created', feedbackReport);
 
 				return {
 					ok: true,

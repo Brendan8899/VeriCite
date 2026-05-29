@@ -1,6 +1,6 @@
 import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
 
-import { isValidMLA } from '../src/verifyMLA';
+import { isValidMLA, isValidMLAcopy } from '../src/verifyMLA';
 
 global.fetch = vi.fn();
 
@@ -107,13 +107,13 @@ describe('MLA journal article format', () => {
 describe('MLA website format', () => {
 	test('passes a well-formed website citation', async () => {
 		const citation =
-			'Smith, John. "Page Title." Website Name, 15 Jan. 2021, https://www.example.com/page.';
+			'Slat, Boyan. “Whales Likely Impacted by Great Pacific Garbage Patch.” The Ocean Cleanup, 10 Apr. 2019, www.theoceancleanup.com/updates/whales-likely-impacted-by-great-pacific-garbage-patch.';
 		const result = await isValidMLA(citation);
 		expect(result.valid).toBe(true);
 	});
 
 	test('fails when access date is missing for web source', async () => {
-		const citation = 'Smith, John. "Page Title." Website Name, https://www.example.com/page.';
+		const citation = 'Slat, Boyan. “Whales Likely Impacted by Great Pacific Garbage Patch.” The Ocean Cleanup, www.theoceancleanup.com/updates/whales-likely-impacted-by-great-pacific-garbage-patch. Accessed 28 May.';
 		const result = await isValidMLA(citation);
 		expect(result.valid).toBe(false);
 		expect(result.errors).toContain('Web citation must include a publication or access date');
@@ -129,14 +129,14 @@ describe('MLA website format', () => {
 	test('flags unreachable URL', async () => {
 		global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
 		const citation =
-			'Smith, John. "Page Title." Website Name, 15 Jan. 2021, https://dead-url.com/page.';
+			'Smith, John. "Page Title." Website Name, 15 Jan. 2021, www.dead-url.com/page.';
 		const result = await isValidMLA(citation);
 		expect(result.errors.some((e) => e.includes('unreachable'))).toBe(true);
 	});
 
 	test('passes citation with Accessed date notation', async () => {
 		const citation =
-			'Smith, John. "Page Title." Website Name, 15 Jan. 2021, https://example.com. Accessed 20 May 2026.';
+			'Smith, John. "Page Title." Website Name, 15 Jan. 2021, www.example.com. Accessed 20 May 2026.';
 		const result = await isValidMLA(citation);
 		expect(result.valid).toBe(true);
 	});

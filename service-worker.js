@@ -1,7 +1,8 @@
+import { feedbackGeneration } from './src/feedbackGenerationEngine/feedbackGeneration.js';
+import { verifySource } from './src/sourceVerificationEngine/sourceVerification.js';
 import { isValidAPA } from './src/verifyAPA.js';
 import { isValidIEEE } from './src/verifyIEEE.js';
-// import { reconstituteIEEEReferences } from './utility/IEEEParser.js';
-import { isGoogleDocsUrl } from './utility/utility.js';
+import { isGoogleDocsUrl, normalizeWhitespace } from './utility/utility.js';
 
 let token = null;
 
@@ -55,6 +56,17 @@ function extractReferencesFromParagraphs(paragraphs) {
 	}
 
 	return paragraphs.slice(referencesStartIndex + 1);
+}
+
+function mergeErrorsAndWarnings(validityResults, verificationResults) {
+	const finalResults = validityResults;
+	if (verificationResults?.errors && finalResults?.errors) {
+		finalResults.errors.push(...verificationResults.errors);
+	}
+	if (verificationResults?.warnings && finalResults?.warnings) {
+		finalResults.warnings.push(...verificationResults.warnings);
+	}
+	return finalResults;
 }
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -116,30 +128,45 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				// Paragraphs are defined as text seperated by a newline character in the document
 				const paragraphs = extractParagraphsFromGoogleDoc(doc);
 				// Afterward, use keywords (references|bibliography|works cited) to find where the references start from
-				let references = extractReferencesFromParagraphs(paragraphs);
-
-				// if the format is IEEE, possible to do inference of references, even if the same reference is split into multiple paragraphs
-				// if (message.citationFormat === 'IEEE') {
-				// 	references = reconstituteIEEEReferences(references);
-				// 	console.log('references: ' + references)
-				// }
-
-				for (let i of references) {
+				const originalReferences = extractReferencesFromParagraphs(paragraphs);
+				const references = originalReferences.map((reference) => normalizeWhitespace(reference));
+				// We use index based iteration to better keep track of originalReferences and references
+				for (let i in references) {
 					let validityResult = null;
+					const verificationResult = await verifySource(
+						references[i],
+						message.citationFormat,
+						token,
+					);
 					if (message.citationFormat === 'APA') {
-						validityResult = await isValidAPA(i);
+						validityResult = await isValidAPA(references[i]);
 					} else if (message.citationFormat === 'MLA') {
 						// validityResult = await isValidMLA(i);
 					} else if (message.citationFormat === 'Chicago') {
 						// validityResult = await isValidChicago(i);
 					} else if (message.citationFormat === 'IEEE') {
-						validityResult = await isValidIEEE(i);
+						validityResult = await isValidIEEE(references[i]);
 					}
-					if (validityResult) {
-						result.push({ i, validityResult });
+					if (validityResult && verificationResult) {
+						validityResult = mergeErrorsAndWarnings(validityResult, verificationResult);
+						if (verificationResult?.ok && verificationResult?.valid) {
+							validityResult.sourceVerified = true;
+						}
+						result.push({
+							originalReference: originalReferences[i],
+							reference: references[i],
+							validityResult,
+						});
 					}
 				}
+				const feedbackReport = await feedbackGeneration(result, documentId, token);
 				console.log('Processing complete', result);
+
+				return {
+					ok: true,
+					result,
+					feedbackReport,
+				};
 			})
 			.then((result) => sendResponse(result))
 			.catch((error) => {

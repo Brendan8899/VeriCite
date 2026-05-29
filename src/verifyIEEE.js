@@ -1,4 +1,4 @@
-import { isValidUrl, normalizeWhitespace } from '../utility/utility.js';
+import { isValidUrl } from '../utility/utility.js';
 
 const IEEE_INDEX_NUMBER_REGEX = /^\[\d+\]/;
 
@@ -31,19 +31,13 @@ export const IEEE_ALL_REGEX = {
 export async function isValidIEEE(citation) {
 	// Implementation for IEE Citation Validation
 
-	// Normalize whitespace in the citation
-	citation = normalizeWhitespace(citation);
+	let errors = [];
+	let warnings = [];
 
 	// 1. Check if the citation starts with an index number in square brackets, e.g. [1]
 	if (!IEEE_INDEX_NUMBER_REGEX.test(citation)) {
-		return {
-			valid: false,
-			error: 'Citation must start with an index number in square brackets, e.g. [1]',
-		};
+		errors.push('Citation must start with an index number in square brackets, e.g. [1]');
 	}
-
-	let errors = [];
-	let warnings = [];
 
 	// 2. Check for Author Name with Index Number Preceding
 	if (
@@ -90,5 +84,5 @@ export async function isValidIEEE(citation) {
 		);
 	}
 
-	return { valid: errors.length === 0, errors, warnings };
+	return { valid: errors.length === 0, errors, warnings, sourceVerified: false };
 }

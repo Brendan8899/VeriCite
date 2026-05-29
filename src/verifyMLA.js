@@ -1,4 +1,3 @@
-import { type } from 'node:os';
 import { isValidUrl, checkUrlExists } from '../utility/utility.js';
 
 // Regex
@@ -9,7 +8,8 @@ const yearRegex = /,?\s(\d{4})[,.]/;
 // Must have a date — matches "15 Jan. 2021" or "Accessed 20 May 2026."
 const publicationDateRegex = /\b\d{1,2}\s[A-Z][a-z]+\.\s\d{4}\b/;
 const accessedDateRegex = /\bAccessed\s\d{1,2}\s[A-Z][a-z]+(?:\s\d{4})?\.?/;
-const urlRegex = /(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/;
+const urlRegex =
+	/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)/;
 
 // MLA first author: "Lastname, Firstname" — full first name, not initials
 const authorRegex = /^([A-Z][a-zA-ZÀ-ÖØ-öø-ÿ-]+,\s[A-Z][a-z]+|[A-Z][a-zA-Z\s]+\.)/;
@@ -35,14 +35,16 @@ const wwwRegex = /www\.[a-zA-Z\p{P}]+/u;
 function looksLikeWebsiteCitation(normalised) {
 	return (
 		hasQuotedTitle.test(normalised) &&
-		(urlRegex.test(normalised) || publicationDateRegex.test(normalised) || accessedDateRegex.test(normalised))
+		(urlRegex.test(normalised) ||
+			publicationDateRegex.test(normalised) ||
+			accessedDateRegex.test(normalised))
 	);
 }
 
 // MLA year is a bare 4-digit number near the end, no parentheses
 function hasYearMLA(citation) {
 	const normalised = citation.replace(/\s+/g, ' ').trim();
-	
+
 	const currentYear = new Date().getFullYear();
 	const errors = [];
 	const warnings = [];
@@ -132,8 +134,7 @@ async function isValidMLA(citation) {
 	if (hyphenPageRange.test(normalised)) {
 		errors.push('Page range should use an em-dash (–) not a hyphen (-)');
 	}
-	// Must have a date — matches "15 Jan. 2021" or "2021" near URL
-	const hasDateRegex = /Accessed\s\d{1,2}?\s[A-Za-z]+\s\d{4}\./;
+
 	// --- 8. Website-specific checks
 	if (looksLikeWebsiteCitation(normalised)) {
 		const hasPublicationDate = publicationDateRegex.test(normalised);
@@ -175,33 +176,30 @@ async function isValidMLA(citation) {
 
 	// --- 11. URL reachability
 	const httpsResult = await isValidUrl(normalised);
-	// check if https:// is found in link 
+	// check if https:// is found in link
 
 	let wwwResult;
 
 	// check if URL can be reached via normal HTTPS check route in isValidURL
-	if (!httpsResult.found || !httpsResult.reachable){
+	if (!httpsResult.found || !httpsResult.reachable) {
 		let match = citation.match(wwwRegex);
 		let finalLink;
 
 		// to check via the "www" method if normal HTTPS route fails - extracts out the full website chain from "www.xxx..." and strips away last index of "." or "," if exists
 		if (match && Array.isArray(match) && match[0] instanceof String) {
-			if (match[0].at(-1) === "." || match[0].at(-1) === ",") {
+			if (match[0].at(-1) === '.' || match[0].at(-1) === ',') {
 				finalLink = match[0].slice(0, -1);
 			}
 		}
-		wwwResult = await checkUrlExists(normalised);
+		wwwResult = await checkUrlExists(finalLink);
 
 		// if "www" check also fails, the URL is wholly unreachable, push error
 		if (!wwwResult) {
-			errors.push("URL is unreachable, please check website source if it still exists.");
+			errors.push('URL is unreachable, please check website source if it still exists.');
 		}
 	}
 	return { valid: errors.length === 0, errors, warnings };
 }
-
-
-
 
 async function isValidMLAcopy(citation) {
 	return isValidMLA(citation);

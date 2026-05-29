@@ -1,6 +1,6 @@
 import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
 
-import { isValidMLA, isValidMLAcopy } from '../src/verifyMLA';
+import { isValidMLA } from '../src/verifyMLA';
 
 global.fetch = vi.fn();
 
@@ -113,7 +113,8 @@ describe('MLA website format', () => {
 	});
 
 	test('fails when access date is missing for web source', async () => {
-		const citation = 'Slat, Boyan. “Whales Likely Impacted by Great Pacific Garbage Patch.” The Ocean Cleanup, www.theoceancleanup.com/updates/whales-likely-impacted-by-great-pacific-garbage-patch. Accessed 28 May.';
+		const citation =
+			'Slat, Boyan. “Whales Likely Impacted by Great Pacific Garbage Patch.” The Ocean Cleanup, www.theoceancleanup.com/updates/whales-likely-impacted-by-great-pacific-garbage-patch. Accessed 28 May.';
 		const result = await isValidMLA(citation);
 		expect(result.valid).toBe(false);
 		expect(result.errors).toContain('Web citation must include a publication or access date');

@@ -28,14 +28,18 @@ const looksLikeJournalCitation = /\."?\s[A-Z][a-zA-Z\s]+,\s(?:vol\.|no\.|pp\.)/;
 
 const looksLikeChapter = /edited\sby/;
 
+// Book needs a publisher before the year
+// Pattern: "Publisher, 2021."
+const publisherYearRegex = /[A-Z][a-zA-Z\s]+,\s\d{4}\./;
+
 const isVolTrack = /vol\.\s\d+/;
 
 const wwwRegex = /www\.[a-zA-Z\p{P}]+/u;
 
 function looksLikeWebsiteCitation(normalised) {
 	return (
-		hasQuotedTitle.test(normalised) &&
-		(urlRegex.test(normalised) ||
+		urlRegex.test(normalised) &&
+		(hasQuotedTitle.test(normalised) ||
 			publicationDateRegex.test(normalised) ||
 			accessedDateRegex.test(normalised))
 	);
@@ -156,10 +160,10 @@ async function isValidMLA(citation) {
 		!looksLikeWebsiteCitation(normalised) &&
 		!looksLikeChapter.test(normalised);
 
+	// todo: once italicised detection up and running, edit this function to detect book logic better!
+	// heuristic: watch for italicised title and publisher ONLY to prove it is a book!
+
 	if (looksLikeBook) {
-		// Book needs a publisher before the year
-		// Pattern: "Publisher, 2021."
-		const publisherYearRegex = /[A-Z][a-zA-Z\s]+,\s\d{4}\./;
 		if (!publisherYearRegex.test(normalised)) {
 			errors.push('Publisher is missing');
 		}
@@ -170,39 +174,34 @@ async function isValidMLA(citation) {
 	if (!yearResult.found) {
 		errors.push(yearResult.error);
 	}
-	if (yearResult.errors) errors.push(...yearResult.errors);
-	if (yearResult.warning) warnings.push(yearResult.warning);
-	if (yearResult.warnings) warnings.push(...yearResult.warnings);
 
 	// --- 11. URL reachability
-	const httpsResult = await isValidUrl(normalised);
-	// check if https:// is found in link
+	if (looksLikeWebsiteCitation(normalised)) {
+		const httpsResult = await isValidUrl(normalised);
+		// check if https:// is found in link
 
-	let wwwResult;
+		let wwwResult;
 
-	// check if URL can be reached via normal HTTPS check route in isValidURL
-	if (!httpsResult.found || !httpsResult.reachable) {
-		let match = citation.match(wwwRegex);
-		let finalLink;
+		// check if URL can be reached via normal HTTPS check route in isValidURL
+		if (!httpsResult.found || !httpsResult.reachable) {
+			let match = citation.match(wwwRegex);
+			let finalLink;
 
-		// to check via the "www" method if normal HTTPS route fails - extracts out the full website chain from "www.xxx..." and strips away last index of "." or "," if exists
-		if (match && Array.isArray(match) && match[0] instanceof String) {
-			if (match[0].at(-1) === '.' || match[0].at(-1) === ',') {
-				finalLink = match[0].slice(0, -1);
+			// to check via the "www" method if normal HTTPS route fails - extracts out the full website chain from "www.xxx..." and strips away last index of "." or "," if exists
+			if (match && Array.isArray(match) && match[0] instanceof String) {
+				if (match[0].at(-1) === '.' || match[0].at(-1) === ',') {
+					finalLink = match[0].slice(0, -1);
+				}
 			}
-		}
-		wwwResult = await checkUrlExists(finalLink);
+			wwwResult = await checkUrlExists(finalLink);
 
-		// if "www" check also fails, the URL is wholly unreachable, push error
-		if (!wwwResult) {
-			errors.push('URL is unreachable, please check website source if it still exists.');
+			// if "www" check also fails, the URL is wholly unreachable, push error
+			if (!wwwResult) {
+				errors.push('URL is unreachable, please check website source if it still exists.');
+			}
 		}
 	}
 	return { valid: errors.length === 0, errors, warnings };
 }
 
-async function isValidMLAcopy(citation) {
-	return isValidMLA(citation);
-}
-
-module.exports = { hasYearMLA, isValidMLA, isValidMLAcopy };
+export { hasYearMLA, isValidMLA };

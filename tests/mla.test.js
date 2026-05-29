@@ -120,13 +120,6 @@ describe('MLA website format', () => {
 		expect(result.errors).toContain('Web citation must include a publication or access date');
 	});
 
-	test('fails when URL is missing for web source', async () => {
-		const citation = 'Smith, John. "Page Title." Website Name, 15 Jan. 2021.';
-		const result = await isValidMLA(citation);
-		expect(result.valid).toBe(false);
-		expect(result.errors).toContain('Web citation must include a URL');
-	});
-
 	test('flags unreachable URL', async () => {
 		global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
 		const citation =

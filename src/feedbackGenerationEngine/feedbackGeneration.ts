@@ -1,13 +1,11 @@
-function getOriginalReference(result) {
-	return result?.originalReference || '';
+import { FinalCheckResult, ReferenceStatus, FeedbackGenerationMessage } from "../types";
+
+function getOriginalReference(result: FinalCheckResult): string {
+	return result.originalReference;
 }
 
-function getReference(result) {
-	return result?.reference || '';
-}
-
-function escapeHtml(value) {
-	return String(value || '')
+function escapeHtml(value: string): string {
+	return value
 		.replace(/&/g, '&amp;')
 		.replace(/</g, '&lt;')
 		.replace(/>/g, '&gt;')
@@ -16,7 +14,7 @@ function escapeHtml(value) {
 }
 
 // Function to render a list based on list of warning or list of errors
-function renderFeedbackList(title, items, className) {
+function renderFeedbackList(title: string, items: Array<string>, className: string) {
 	if (!items?.length) {
 		return '';
 	}
@@ -32,10 +30,10 @@ function renderFeedbackList(title, items, className) {
 }
 
 // Show the Appropriate Label with the Appropriate CSS Styles based on Status
-function getStatus(result) {
-	const validityResult = result?.validityResult;
-	const errors = validityResult?.errors || [];
-	const warnings = validityResult?.warnings || [];
+function getStatus(result: FinalCheckResult): ReferenceStatus {
+	const validityResult = result.validityResults;
+	const errors = validityResult.errors || [];
+	const warnings = validityResult.warnings || [];
 
 	// If there are errors, then show the Errors Message
 	if (errors.length) {
@@ -69,12 +67,11 @@ function getStatus(result) {
 }
 
 // Function to Render Reference Card, 1 Reference Card for each Reference
-function renderReferenceResult(result, index) {
+function renderReferenceResult(result: FinalCheckResult, index: number): string {
 	const originalReference = getOriginalReference(result);
-	const reference = getReference(result);
-	const validityResult = result?.validityResult;
-	const errors = validityResult?.errors || [];
-	const warnings = validityResult?.warnings || [];
+	const validityResult = result.validityResults;
+	const errors = validityResult.errors || [];
+	const warnings = validityResult.warnings || [];
 	const status = getStatus(result);
 
 	return `
@@ -82,15 +79,10 @@ function renderReferenceResult(result, index) {
 			<header>
 				<div>
 					<p class="eyebrow">Reference ${index + 1}</p>
-					<h2>${escapeHtml(reference || originalReference || 'Untitled reference')}</h2>
+					<h2>${escapeHtml(originalReference || 'Untitled reference')}</h2>
 				</div>
 				<span class="status ${status.className}">${status.label}</span>
 			</header>
-
-			<section class="reference-text">
-				<h3>Original Reference</h3>
-				<p>${escapeHtml(originalReference || 'No original reference found.')}</p>
-			</section>
 
 			${renderFeedbackList('Errors', errors, 'errors')}
 			${renderFeedbackList('Warnings', warnings, 'warnings')}
@@ -104,19 +96,19 @@ function renderReferenceResult(result, index) {
 	`;
 }
 
-export function buildFeedbackReportHtml(results) {
+export function buildFeedbackReportHtml(results: Array<FinalCheckResult>): string {
 	const safeResults = results || [];
 	const generatedAt = new Date().toLocaleString();
 
 	// Use Reduce in Functional Programming to get the Total Number of Errors for all References
 	const errorCount = safeResults.reduce(
-		(total, result) => total + (result?.validityResult?.errors?.length || 0),
+		(total, result) => total + (result.validityResults.errors.length || 0),
 		0,
 	);
 
 	// Use Reduce in Functional Programming to get the Total Number of Warnings for all References
 	const warningCount = safeResults.reduce(
-		(total, result) => total + (result?.validityResult?.warnings?.length || 0),
+		(total, result) => total + (result.validityResults.warnings.length || 0),
 		0,
 	);
 
@@ -149,7 +141,7 @@ export function buildFeedbackReportHtml(results) {
 	`;
 }
 
-export async function feedbackGeneration(results) {
+export async function feedbackGeneration(results: Array<FinalCheckResult>): Promise<FeedbackGenerationMessage> {
 	// Creates the html String
 	const html = buildFeedbackReportHtml(results);
 
@@ -157,6 +149,8 @@ export async function feedbackGeneration(results) {
 	if (!globalThis.browser?.tabs?.create) {
 		return {
 			ok: false,
+			tabId: undefined,
+			referenceCount: 0,
 			error: 'Cannot open feedback report because browser.tabs.create is unavailable.',
 			html,
 		};
@@ -179,6 +173,7 @@ export async function feedbackGeneration(results) {
 		ok: true,
 		tabId: tab?.id,
 		referenceCount: results?.length || 0,
+		error: undefined,
 		html,
 	};
 }

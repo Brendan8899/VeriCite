@@ -1,4 +1,4 @@
-import { isGoogleDocsUrl } from './utility/utility.js';
+import { isGoogleDocsUrl } from './src/utility/utility.js';
 
 // Get the Current Active Tab
 async function getCurrentTab() {

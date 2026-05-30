@@ -7,6 +7,7 @@
 	"scripts": {
 		"test": "vitest",
 		"test:coverage": "vitest run --coverage",
+		"typecheck": "tsc --noEmit",
 		"test:ci": "vitest run --config vitest.config.ci.ts",
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
@@ -14,11 +15,13 @@
 		"lint:fix": "oxlint --fix"
 	},
 	"devDependencies": {
+		"@types/firefox-webext-browser": "^143.0.0",
 		"@types/node": "^25.9.1",
 		"@vitest/coverage-v8": "^4.1.7",
 		"oxfmt": "^0.51.0",
 		"oxlint": "^1.66.0",
 		"oxlint-tsgolint": "^0.23.0",
+		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"
 	},
 	"packageManager": "pnpm@11.2.2"

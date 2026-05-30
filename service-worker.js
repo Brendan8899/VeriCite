@@ -2,7 +2,7 @@ import { feedbackGeneration } from './src/feedbackGenerationEngine/feedbackGener
 import { verifySource } from './src/sourceVerificationEngine/sourceVerification.js';
 import { isValidAPA } from './src/verifyAPA.js';
 import { isValidIEEE } from './src/verifyIEEE.js';
-import { isGoogleDocsUrl, normalizeWhitespace } from './utility/utility.js';
+import { isGoogleDocsUrl, normalizeWhitespace } from './src/utility/utility.js';
 
 let token = null;
 

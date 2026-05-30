@@ -1,14 +1,14 @@
 import { isValidUrl, checkUrlExists, normalizeWhitespace } from './utility/utility.js';
+import type { FormatValidationResult, HasYearResult } from './types';
 
 // Regex
+
 // matches a bare year: ", 2021," or ", 2021."
 const YEAR_REGEX = /,?\s(\d{4})[,.]/;
 
 // Must have a date — matches "15 Jan. 2021" or "Accessed 20 May 2026."
 const PUBLICATION_DATE_REGEX = /\b\d{1,2}\s[A-Z][a-z]+\.\s\d{4}\b/;
 const ACCESSED_DATE_REGEX = /\bAccessed\s\d{1,2}\s[A-Z][a-z]+(?:\s\d{4})?\.?/;
-
-// URL Regex with Optional https, http or www
 const URL_REGEX =
 	/(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_.~#?&//=]*)/;
 
@@ -63,52 +63,45 @@ export const ALL_MLA_REGEX = {
 	HYPHEN_PAGE_RANGE_REGEX,
 };
 
-// Function to determine if the citation looks like a website by detecting a website
-function looksLikeWebsiteCitation(normalised: string): boolean {
-	return (
-		URL_REGEX.test(normalised)
-	);
-}
-
 // MLA year is a bare 4-digit number near the end, no parentheses
-function hasYearMLA(citation: string) {
+function hasYearMLA(citation: string): HasYearResult {
 	const normalised = normalizeWhitespace(citation);
 
 	const currentYear = new Date().getFullYear();
-	const errors = [];
-	const warnings = [];
+	const errors: Array<string> = [];
+	const warning: Array<string> = [];
 
 	const match = citation.match(YEAR_REGEX);
 
-	// --- Website-specific checks
-	if (looksLikeWebsiteCitation(normalised)) {
-		// Looks for Publication Date
+	// Website-specific checks
+    // If a URL is detected, take it as a website
+	if (URL_REGEX.test(normalised)) {
 		const hasPublicationDate = PUBLICATION_DATE_REGEX.test(normalised);
-		// Looks for Accessed Date
 		const hasAccessDate = ACCESSED_DATE_REGEX.test(normalised);
 
 		if (!hasAccessDate && !hasPublicationDate) {
 			errors.push('Web citation must include a publication or access date');
-			warnings.push(
+			warning.push(
 				'Year of citation not detected. Do check if the citation provides one and update if possible.',
 			);
-			return { found: false, error: 'Year is missing', warnings, errors };
+			return { found: false, value: undefined, errors: ['Year is missing'], warning };
 		}
 	}
 
-	if (!match) return { found: false, error: 'Year is missing', warnings, errors };
+    // For Non-Website Citations, just check for the presence of a Year
+	if (!match) return { found: false, value: undefined, errors: ['Year is missing'], warning };
 
 	const year = parseInt(match[1]);
-	if (year < 1800) return { found: false, error: 'Year is implausibly old', warnings, errors };
-	if (year > currentYear) return { found: false, error: 'Year is in the future', warnings, errors };
+	if (year < 1800) return { found: false, value: year, errors: ['Year is implausibly old'], warning };
+	if (year > currentYear) return { found: false, value: year, errors: ['Year is in the future'], warning };
 
-	return { found: true, value: year, warnings, errors };
+	return { found: true, value: year, warning, errors };
 }
 
-async function isValidMLA(citation) {
-	const normalised = citation.replace(/\s+/g, ' ').trim();
-	const errors = [];
-	const warnings = [];
+async function verifyMLA(citation: string): Promise<FormatValidationResult> {
+	const normalised = normalizeWhitespace(citation);
+	const errors: string[] = [];
+	const warnings: string[] = [];
 
 	// --- 1. Author format check
 	if (!AUTHOR_REGEX.test(normalised)) {
@@ -127,7 +120,6 @@ async function isValidMLA(citation) {
 	}
 
 	// --- 4. APA year position check — year in parens after author is APA, not MLA
-
 	if (APA_YEAR_REGEX.test(normalised)) {
 		errors.push('Year must not appear in parentheses after the author — this is APA format');
 	}
@@ -161,14 +153,9 @@ async function isValidMLA(citation) {
 	}
 
 	// --- 8. Website-specific checks
-	if (looksLikeWebsiteCitation(normalised)) {
+	if (URL_REGEX.test(normalised)) {
 		const hasPublicationDate = PUBLICATION_DATE_REGEX.test(normalised);
 		const hasAccessDate = ACCESSED_DATE_REGEX.test(normalised);
-		const hasUrl = URL_REGEX.test(normalised);
-
-		if (!hasUrl) {
-			errors.push('Web citation must include a URL');
-		}
 
 		if (hasAccessDate && !hasPublicationDate) {
 			errors.push('Web citation must include a publication or access date');
@@ -178,7 +165,7 @@ async function isValidMLA(citation) {
 	// --- 9. Book-specific checks
 	const looksLikeBook =
 		!JOURNAL_CITATION_REGEX.test(normalised) &&
-		!looksLikeWebsiteCitation(normalised) &&
+		!URL_REGEX.test(normalised) &&
 		!CHAPTER_REGEX.test(normalised);
 
 	// todo: once italicised detection up and running, edit this function to detect book logic better!
@@ -192,7 +179,7 @@ async function isValidMLA(citation) {
 
 	// --- 10. Year validity (all source types)
 	const yearResult = hasYearMLA(normalised);
-	if (!yearResult.found) {
+	if (!yearResult.found && yearResult.error) {
 		errors.push(yearResult.error);
 	}
 
@@ -205,16 +192,16 @@ async function isValidMLA(citation) {
 
 		// check if URL can be reached via normal HTTPS check route in isValidURL
 		if (!httpsResult.found || !httpsResult.reachable) {
-			let match = citation.match(WWW_REGEX);
-			let finalLink;
+			const match = citation.match(WWW_REGEX);
+			let finalLink: string | undefined;
 
 			// to check via the "www" method if normal HTTPS route fails - extracts out the full website chain from "www.xxx..." and strips away last index of "." or "," if exists
-			if (match && Array.isArray(match) && match[0] instanceof String) {
+			if (match && Array.isArray(match) && typeof match[0] === 'string') {
 				if (match[0].at(-1) === '.' || match[0].at(-1) === ',') {
 					finalLink = match[0].slice(0, -1);
 				}
 			}
-			wwwResult = await checkUrlExists(finalLink);
+			wwwResult = finalLink ? await checkUrlExists(finalLink) : false;
 
 			// if "www" check also fails, the URL is wholly unreachable, push error
 			if (!wwwResult) {
@@ -222,7 +209,9 @@ async function isValidMLA(citation) {
 			}
 		}
 	}
-	return { valid: errors.length === 0, errors, warnings };
+	return { valid: errors.length === 0, errors, warnings, sourceVerified: false };
 }
 
-export { hasYearMLA, isValidMLA };
+const isValidMLA = verifyMLA;
+
+export { hasYearMLA, isValidMLA, verifyMLA };

@@ -1,5 +1,5 @@
 import { isValidUrl } from './utility/utility.js';
-import { FormatValidationResult, HasYearAPAResult } from './types.js';
+import { FormatValidationResult, HasYearResult } from './types.js';
 
 // matches (2021) or (2021, March 5) or (n.d.)
 	// Check if theres open braces, followed by either 4 digits or 'n.d.', optionally followed by a comma and more text, then a closing brace
@@ -31,24 +31,24 @@ export const APA_ALL_REGEX = {
 }
 
 // Check if the reference has a year in parentheses and if its a valid year or no date
-export function hasYear(citation: string): HasYearAPAResult {
+export function hasYear(citation: string): HasYearResult {
 	// Get the current year in the system to check for future years in the citation
 	const currentYear = new Date().getFullYear();
 
 	const match = citation.match(YEAR_REGEX);
 
 	// check if year is missing
-	if (!match) return { found: false, value: undefined, error: 'Year is missing or not in parentheses', warning: undefined };
+	if (!match) return { found: false, value: undefined, errors: ['Year is missing or not in parentheses'], warning: [] };
 
 	// check if year is written as 'n.d.'
-	if (match[1] === 'n.d.') return { found: true, value: undefined, error: undefined, warning: 'No date — unverifiable' };
+	if (match[1] === 'n.d.') return { found: true, value: undefined, errors: [], warning: ['No date — unverifiable'] };
 
 	// check if year is before 1800 or in the future
 	const year = parseInt(match[1]);
-	if (year < 1800) return { found: false, value: year, error: 'Year is very old', warning: undefined };
-	if (year > currentYear) return { found: false, value: year, error: 'Year is in the future', warning: undefined };
+	if (year < 1800) return { found: false, value: year, errors: ['Year is very old'], warning: [] };
+	if (year > currentYear) return { found: false, value: year, errors: ['Year is in the future'], warning: [] };
 
-	return { found: true, value: year, error: undefined, warning: undefined };
+	return { found: true, value: year, errors: [], warning: [] };
 }
 
 export async function isValidAPA(citation: string): Promise<FormatValidationResult> {
@@ -71,7 +71,7 @@ export async function isValidAPA(citation: string): Promise<FormatValidationResu
 	}
 
 	// Year validity check
-	const yearResult: HasYearAPAResult = hasYear(citation);
+	const yearResult: HasYearResult = hasYear(citation);
 	if (!yearResult.found && yearResult.error) {
 		errors.push(yearResult.error);
 	}

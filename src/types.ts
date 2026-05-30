@@ -58,9 +58,9 @@ export type FormatValidationResult = {
     sourceVerified: boolean
 }
 
-export type HasYearAPAResult = {
+export type HasYearResult = {
     found: boolean;
     value: number | undefined;
-    error: string | undefined;
-    warning: string | undefined
+    errors: Array<string> | undefined;
+    warning: Array<string> | undefined
 }

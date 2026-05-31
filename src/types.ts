@@ -32,10 +32,9 @@ export type FeedbackGenerationMessage = {
 
 export type TransformedBookStructure = {
     authors: Array<string>;
-    results: Array<string> | undefined;
     title: string | undefined;
     isbn: Array<string>;
-    publishedDate: string
+    publishedDate: string | undefined
 }
 
 export type VerifySourceResult = {

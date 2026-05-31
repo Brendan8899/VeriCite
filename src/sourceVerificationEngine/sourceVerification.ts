@@ -15,7 +15,10 @@ export function normalizeForCompare(value: string): string {
 }
 
 // Returns a Boolean to show if either Source or Target are Substrings of each other
-export function includesComparable(source: string, target: string): boolean {
+export function includesComparable(source: string | undefined, target: string | undefined): boolean {
+	if (source === undefined || target === undefined) {
+		return false
+	} else {
 	// Normalize Source and Target to compare and find inclusion exact match
 	const normalizedSource = normalizeForCompare(source);
 	const normalizedTarget = normalizeForCompare(target);
@@ -24,6 +27,7 @@ export function includesComparable(source: string, target: string): boolean {
 		normalizedTarget &&
 		(normalizedSource.includes(normalizedTarget) || normalizedTarget.includes(normalizedSource)),
 	);
+	}
 }
 
 // Normalize ISBN Values by dropping all hyphens and replacing with empty string
@@ -47,7 +51,7 @@ export function scoreBookMatch(citation: string, transformedBook: TransformedBoo
 	}
 
 	// Title match is the next most reliable signal from a citation.
-	if (citation && includesComparable(citation, transformedBook.title ?? '')) {
+	if (citation && includesComparable(citation, transformedBook.title ?? undefined)) {
 		score += 2;
 	}
 
@@ -67,7 +71,7 @@ export function scoreBookMatch(citation: string, transformedBook: TransformedBoo
 	}
 
 	// Google Books usually returns a full date; compare only the year.
-	if (citation && citation.includes(transformedBook?.publishedDate)) {
+	if (citation && transformedBook?.publishedDate && citation.includes(transformedBook?.publishedDate)) {
 		score += 1;
 	}
 
@@ -78,10 +82,9 @@ export function scoreBookMatch(citation: string, transformedBook: TransformedBoo
 export function transformGoogleBookItem(rawGoogleBookItem: any): TransformedBookStructure {
 	const result: TransformedBookStructure = {
 		authors: [],
-		results: undefined,
 		title: undefined,
 		isbn: [],
-		publishedDate: '',
+		publishedDate: undefined,
 	};
 
 	if (typeof rawGoogleBookItem !== 'object' || rawGoogleBookItem === null) {
@@ -93,7 +96,7 @@ export function transformGoogleBookItem(rawGoogleBookItem: any): TransformedBook
 		result.authors = rawGoogleBookItem.volumeInfo.authors;
 	}
 	// Title Field is a String
-	if (rawGoogleBookItem?.volumeInfo?.title && rawGoogleBookItem?.volumeInfo?.title instanceof String) {
+	if (rawGoogleBookItem?.volumeInfo?.title && typeof rawGoogleBookItem?.volumeInfo?.title === 'string') {
 		result.title = rawGoogleBookItem.volumeInfo.title;
 	}
 	// Published Date is a String
@@ -109,7 +112,7 @@ export function transformGoogleBookItem(rawGoogleBookItem: any): TransformedBook
 		for (let industryIdentifier of rawGoogleBookItem.volumeInfo.industryIdentifiers) {
 			if (
 				(industryIdentifier?.type === 'ISBN_10' || industryIdentifier.type === 'ISBN_13') &&
-				industryIdentifier.identifier && industryIdentifier.identifier instanceof String
+				industryIdentifier.identifier && typeof industryIdentifier.identifier === 'string' 
 			) {
 				result.isbn.push(industryIdentifier.identifier);
 			}

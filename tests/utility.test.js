@@ -13,14 +13,14 @@ describe('extractUrl - pulls URL out of citation string', () => {
 		expect(extractUrl(citation)).toBe('https://doi.org/10.1000/xyz123');
 	});
 
-	test('returns null when no URL present', () => {
+	test('returns undefined when no URL present', () => {
 		const citation = 'Smith, J. (2021). Title. Journal Name, 4(1).';
-		expect(extractUrl(citation)).toBeNull();
+		expect(extractUrl(citation)).toBeUndefined();
 	});
 
-	test('returns null for URL missing scheme', () => {
+	test('returns undefined for URL missing http or https', () => {
 		const citation = 'Smith, J. (2021). Title. www.example.com';
-		expect(extractUrl(citation)).toBeNull();
+		expect(extractUrl(citation)).toBeUndefined();
 	});
 });
 

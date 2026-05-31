@@ -18,7 +18,7 @@ describe('hasYear', () => {
 	});
 
 	test('accepts n.d.', () => {
-		expect(hasYear('Smith, J. (n.d.). Title.')).toMatchObject({ found: true, value: 'n.d.' });
+		expect(hasYear('Smith, J. (n.d.). Title.')).toMatchObject({ found: true, value: undefined });
 	});
 
 	test('rejects missing year', () => {

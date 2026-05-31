@@ -72,10 +72,10 @@ export async function isValidAPA(citation: string): Promise<FormatValidationResu
 
 	// Year validity check
 	const yearResult: HasYearResult = hasYear(citation);
-	if (!yearResult.found && yearResult.error) {
-		errors.push(yearResult.error);
+	if (!yearResult.found && yearResult.errors) {
+		errors.concat(yearResult.errors);
 	}
-	if (yearResult.warning) warnings.push(yearResult.warning);
+	if (yearResult.warning) warnings.concat(yearResult.warning);
 
 	// Title check
 	const titleRegex = /\((\d{4}|n\.d\.)[^)]*\)\.\s.+?\./;

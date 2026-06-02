@@ -22,6 +22,7 @@ jobs:
         task:
           - { name: 'Formatting', command: 'pnpm run fmt:check' }
           - { name: 'Linting', command: 'pnpm run lint --format=github' }
+          - { name: 'Typecheck', command: 'pnpm run typecheck' }
           - { name: 'Testing', command: 'pnpm run test:ci' }
 
     steps:

@@ -187,17 +187,14 @@ describe('verifySource: verifies citations through Google Books', () => {
 			}),
 		});
 
-		const result = await verifySource(
-			'A citation that mentions Clean Code only.',
-			'test-token'
-		);
+		const result = await verifySource('A citation that mentions Clean Code only.', 'test-token');
 
 		// toMatchObject only checks the fields tjhat are expected, there could be more fields in results
 		expect(result).toMatchObject({
 			ok: true,
 			valid: false,
 			errors: [],
-			warnings: ['Book found may not be matching. Please verify if reference exists.']
+			warnings: ['Book found may not be matching. Please verify if reference exists.'],
 		});
 		expect(result.bestMatch).toMatchObject({
 			title: 'Clean Code',
@@ -219,7 +216,7 @@ describe('verifySource: verifies citations through Google Books', () => {
 			bestMatch: undefined,
 			matches: [],
 			errors: ['No matching book found in Google Books'],
-			warnings: []
+			warnings: [],
 		});
 	});
 
@@ -237,7 +234,7 @@ describe('verifySource: verifies citations through Google Books', () => {
 			bestMatch: undefined,
 			matches: [],
 			errors: ['Google Books API request failed with status 503'],
-			warnings: []
+			warnings: [],
 		});
 	});
 });

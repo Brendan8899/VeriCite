@@ -1,4 +1,4 @@
-import { FinalCheckResult, ReferenceStatus, FeedbackGenerationMessage } from "../types";
+import { FinalCheckResult, ReferenceStatus, FeedbackGenerationMessage } from '../types';
 
 function getOriginalReference(result: FinalCheckResult): string {
 	return result.originalReference;
@@ -141,7 +141,9 @@ export function buildFeedbackReportHtml(results: Array<FinalCheckResult>): strin
 	`;
 }
 
-export async function feedbackGeneration(results: Array<FinalCheckResult>): Promise<FeedbackGenerationMessage> {
+export async function feedbackGeneration(
+	results: Array<FinalCheckResult>,
+): Promise<FeedbackGenerationMessage> {
 	// Creates the html String
 	const html = buildFeedbackReportHtml(results);
 

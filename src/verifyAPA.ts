@@ -1,8 +1,8 @@
-import { isValidUrl } from './utility/utility.js';
 import { FormatValidationResult, HasYearResult } from './types.js';
+import { isValidUrl } from './utility/utility.js';
 
 // matches (2021) or (2021, March 5) or (n.d.)
-	// Check if theres open braces, followed by either 4 digits or 'n.d.', optionally followed by a comma and more text, then a closing brace
+// Check if theres open braces, followed by either 4 digits or 'n.d.', optionally followed by a comma and more text, then a closing brace
 const YEAR_REGEX = /\((\d{4}|n\.d\.)(,\s[^)]+)?\)/;
 
 // Check if the Author Exists and is in the correct format (Lastname, F. M.)
@@ -27,8 +27,8 @@ export const APA_ALL_REGEX = {
 	ORG_AUTHOR_REGEX,
 	YEAR_AFTER_AUTHOR_REGEX,
 	YEAR_AFTER_ORG_AUTHOR_REGEX,
-	HYPHEN_PAGE_RANGE_REGEX
-}
+	HYPHEN_PAGE_RANGE_REGEX,
+};
 
 // Check if the reference has a year in parentheses and if its a valid year or no date
 export function hasYear(citation: string): HasYearResult {
@@ -38,15 +38,23 @@ export function hasYear(citation: string): HasYearResult {
 	const match = citation.match(YEAR_REGEX);
 
 	// check if year is missing
-	if (!match) return { found: false, value: undefined, errors: ['Year is missing or not in parentheses'], warning: [] };
+	if (!match)
+		return {
+			found: false,
+			value: undefined,
+			errors: ['Year is missing or not in parentheses'],
+			warning: [],
+		};
 
 	// check if year is written as 'n.d.'
-	if (match[1] === 'n.d.') return { found: true, value: undefined, errors: [], warning: ['No date — unverifiable'] };
+	if (match[1] === 'n.d.')
+		return { found: true, value: undefined, errors: [], warning: ['No date — unverifiable'] };
 
 	// check if year is before 1800 or in the future
 	const year = parseInt(match[1]);
 	if (year < 1800) return { found: false, value: year, errors: ['Year is very old'], warning: [] };
-	if (year > currentYear) return { found: false, value: year, errors: ['Year is in the future'], warning: [] };
+	if (year > currentYear)
+		return { found: false, value: year, errors: ['Year is in the future'], warning: [] };
 
 	return { found: true, value: year, errors: [], warning: [] };
 }

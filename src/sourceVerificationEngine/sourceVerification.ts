@@ -1,4 +1,4 @@
-import { TransformedBookStructure, VerifySourceResult, ScoredBookMatch } from "../types"
+import { TransformedBookStructure, VerifySourceResult, ScoredBookMatch } from '../types';
 
 // Google Books API from https://developers.google.com/books/docs/v1/using#PerformingSearch
 const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
@@ -15,30 +15,34 @@ export function normalizeForCompare(value: string): string {
 }
 
 // Returns a Boolean to show if either Source or Target are Substrings of each other
-export function includesComparable(source: string | undefined, target: string | undefined): boolean {
+export function includesComparable(
+	source: string | undefined,
+	target: string | undefined,
+): boolean {
 	if (source === undefined || target === undefined) {
-		return false
+		return false;
 	} else {
-	// Normalize Source and Target to compare and find inclusion exact match
-	const normalizedSource = normalizeForCompare(source);
-	const normalizedTarget = normalizeForCompare(target);
-	return Boolean(
-		normalizedSource &&
-		normalizedTarget &&
-		(normalizedSource.includes(normalizedTarget) || normalizedTarget.includes(normalizedSource)),
-	);
+		// Normalize Source and Target to compare and find inclusion exact match
+		const normalizedSource = normalizeForCompare(source);
+		const normalizedTarget = normalizeForCompare(target);
+		return Boolean(
+			normalizedSource &&
+			normalizedTarget &&
+			(normalizedSource.includes(normalizedTarget) || normalizedTarget.includes(normalizedSource)),
+		);
 	}
 }
 
 // Normalize ISBN Values by dropping all hyphens and replacing with empty string
 export function normalizeIsbn(value: string): string {
-	return value
-		.replace(/[-\s]/g, '')
-		.toUpperCase();
+	return value.replace(/[-\s]/g, '').toUpperCase();
 }
 
 // Scoring the Books that Google Book API returned to show Best Match
-export function scoreBookMatch(citation: string, transformedBook: TransformedBookStructure): number {
+export function scoreBookMatch(
+	citation: string,
+	transformedBook: TransformedBookStructure,
+): number {
 	let score = 0;
 	// ISBN is the strongest signal because it identifies a specific book edition.
 	// Transformed Book ISBN field is an Array of ISBN Numbers
@@ -71,7 +75,11 @@ export function scoreBookMatch(citation: string, transformedBook: TransformedBoo
 	}
 
 	// Google Books usually returns a full date; compare only the year.
-	if (citation && transformedBook?.publishedDate && citation.includes(transformedBook?.publishedDate)) {
+	if (
+		citation &&
+		transformedBook?.publishedDate &&
+		citation.includes(transformedBook?.publishedDate)
+	) {
 		score += 1;
 	}
 
@@ -92,11 +100,17 @@ export function transformGoogleBookItem(rawGoogleBookItem: any): TransformedBook
 	}
 
 	// Authors Field is an Array
-	if (rawGoogleBookItem?.volumeInfo?.authors && Array.isArray(rawGoogleBookItem?.volumeInfo?.authors)) {
+	if (
+		rawGoogleBookItem?.volumeInfo?.authors &&
+		Array.isArray(rawGoogleBookItem?.volumeInfo?.authors)
+	) {
 		result.authors = rawGoogleBookItem.volumeInfo.authors;
 	}
 	// Title Field is a String
-	if (rawGoogleBookItem?.volumeInfo?.title && typeof rawGoogleBookItem?.volumeInfo?.title === 'string') {
+	if (
+		rawGoogleBookItem?.volumeInfo?.title &&
+		typeof rawGoogleBookItem?.volumeInfo?.title === 'string'
+	) {
 		result.title = rawGoogleBookItem.volumeInfo.title;
 	}
 	// Published Date is a String
@@ -112,7 +126,8 @@ export function transformGoogleBookItem(rawGoogleBookItem: any): TransformedBook
 		for (let industryIdentifier of rawGoogleBookItem.volumeInfo.industryIdentifiers) {
 			if (
 				(industryIdentifier?.type === 'ISBN_10' || industryIdentifier.type === 'ISBN_13') &&
-				industryIdentifier.identifier && typeof industryIdentifier.identifier === 'string' 
+				industryIdentifier.identifier &&
+				typeof industryIdentifier.identifier === 'string'
 			) {
 				result.isbn.push(industryIdentifier.identifier);
 			}
@@ -121,7 +136,10 @@ export function transformGoogleBookItem(rawGoogleBookItem: any): TransformedBook
 	return result;
 }
 
-export async function verifySource(citation: string,  userToken: string): Promise<VerifySourceResult> {
+export async function verifySource(
+	citation: string,
+	userToken: string,
+): Promise<VerifySourceResult> {
 	const queryURL = new URL(GOOGLE_BOOKS_API_URL);
 	queryURL.searchParams.set('q', citation);
 	const response = await fetch(queryURL.toString(), {
@@ -137,7 +155,7 @@ export async function verifySource(citation: string,  userToken: string): Promis
 			bestMatch: undefined,
 			matches: [],
 			errors: [`Google Books API request failed with status ${response.status}`],
-			warnings: []
+			warnings: [],
 		};
 	}
 
@@ -149,7 +167,7 @@ export async function verifySource(citation: string,  userToken: string): Promis
 		.map((transformedBook: TransformedBookStructure) => {
 			return { ...transformedBook, score: scoreBookMatch(citation, transformedBook) };
 		})
-		.sort((a: ScoredBookMatch, b: ScoredBookMatch ) => b.score - a.score);
+		.sort((a: ScoredBookMatch, b: ScoredBookMatch) => b.score - a.score);
 	const bestMatch = matches[0] || undefined;
 
 	const resultErrors = [];

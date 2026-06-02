@@ -15,6 +15,9 @@
 		"lint:fix": "oxlint --fix",
 		"build": "pnpm run typecheck && esbuild index.ts service-worker.ts --bundle --outdir=dist --format=esm"
 	},
+	"dependencies": {
+		"webextension-polyfill": "^0.12.0"
+	},
 	"devDependencies": {
 		"@types/firefox-webext-browser": "^143.0.0",
 		"@types/node": "^25.9.1",
@@ -27,8 +30,5 @@
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"
 	},
-	"packageManager": "pnpm@11.2.2",
-	"dependencies": {
-		"webextension-polyfill": "^0.12.0"
-	}
+	"packageManager": "pnpm@11.2.2"
 }

@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 const reportRoot = document.getElementById('feedback-report');
 
 async function loadFeedbackReport() {
@@ -14,8 +16,8 @@ async function loadFeedbackReport() {
 		return;
 	}
 
-	// Injects the HTML Created into the Report HTML Root
-	reportRoot.innerHTML = reportHtml;
+	// Injects the HTML created into the report HTML root.
+	reportRoot.innerHTML = String(reportHtml);
 }
 
 loadFeedbackReport().catch((error) => {

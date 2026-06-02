@@ -9,7 +9,7 @@ import type {
 	RuntimeMessageType,
 	RuntimeResponse,
 	GoogleLoginResponse,
-} from './src/types.js';
+} from './src/types';
 import { isGoogleDocsUrl, normalizeWhitespace } from './src/utility/utility';
 import { isValidAPA } from './src/verifyAPA';
 import { isValidIEEE } from './src/verifyIEEE';

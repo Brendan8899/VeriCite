@@ -1,5 +1,5 @@
-import { FormatValidationResult, HasYearResult } from './types.js';
-import { isValidUrl } from './utility/utility.js';
+import { FormatValidationResult, HasYearResult } from './types';
+import { isValidUrl } from './utility/utility';
 
 // matches (2021) or (2021, March 5) or (n.d.)
 // Check if theres open braces, followed by either 4 digits or 'n.d.', optionally followed by a comma and more text, then a closing brace

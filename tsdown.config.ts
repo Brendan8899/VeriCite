@@ -1,7 +1,11 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-	entry: ['index.ts', 'service-worker.ts'],
+	entry: {
+		index: 'index.ts',
+		'service-worker': 'service-worker.ts',
+		feedbackReport: 'src/feedbackGenerationEngine/feedbackReport.ts',
+	},
 	format: 'esm',
 	outDir: 'dist',
 	dts: false,

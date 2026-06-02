@@ -1,5 +1,5 @@
-import { FormatValidationResult } from './types.js';
-import { isValidUrl } from './utility/utility.js';
+import { FormatValidationResult } from './types';
+import { isValidUrl } from './utility/utility';
 
 const IEEE_INDEX_NUMBER_REGEX = /^\[\d+\]/;
 

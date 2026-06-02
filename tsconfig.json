@@ -9,5 +9,5 @@
     "noEmit": true,
     "types": ["firefox-webext-browser", "node", "vitest/globals"]
   },
-  "include": ["index.js", "service-worker.js", "src", "tests", "src/utility", "vitest.config.ts"]
+  "include": ["index.ts", "service-worker.ts", "src", "tests", "vitest.config.ts"]
 }

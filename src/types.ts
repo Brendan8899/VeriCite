@@ -63,3 +63,25 @@ export type HasYearResult = {
     errors: Array<string> | undefined;
     warning: Array<string> | undefined
 }
+
+type CitationFormat = 'APA' | 'MLA' | 'IEEE';
+
+type GoogleLoginMessage = {
+	type: 'GOOGLE_LOGIN';
+};
+
+type BeginProcessingMessage = {
+	type: 'BEGIN_PROCESSING';
+	citationFormat: CitationFormat;
+	tab: browser.tabs.Tab;
+};
+
+export type RuntimeMessageType = GoogleLoginMessage | BeginProcessingMessage
+
+export type GoogleLoginResponse =
+	| { ok: true }
+	| { ok: false; error: string };
+
+export type RuntimeResponse =
+  | { ok: true; data?: unknown }
+  | { ok: false; error: string };

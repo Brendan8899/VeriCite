@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
 
-import { IEEE_ALL_REGEX } from '../src/verifyIEEE.js';
+import { IEEE_ALL_REGEX } from '../src/verifyIEEE';
 
 const {
 	IEEE_INDEX_NUMBER_REGEX,

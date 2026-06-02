@@ -1,6 +1,6 @@
 import { test, describe, expect } from 'vitest';
 
-import { normalizeWhitespace } from '../src/utility/utility.js';
+import { normalizeWhitespace } from '../src/utility/utility';
 import { isValidIEEE } from '../src/verifyIEEE';
 
 describe('isValidIEEE - format validation', () => {

@@ -7,7 +7,7 @@ import {
 	scoreBookMatch,
 	transformGoogleBookItem,
 	verifySource,
-} from '../src/sourceVerificationEngine/sourceVerification.js';
+} from '../src/sourceVerificationEngine/sourceVerification';
 
 describe('normalizeForCompare - prepares free text for matching', () => {
 	// Decomposes Accented Characters with NKFD

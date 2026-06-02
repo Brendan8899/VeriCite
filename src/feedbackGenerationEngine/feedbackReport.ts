@@ -10,14 +10,14 @@ async function loadFeedbackReport() {
 	const storedReport = await browser.storage.local.get('vericiteFeedbackReportHtml');
 	const reportHtml = storedReport.vericiteFeedbackReportHtml;
 
-	if (!reportHtml) {
+	if (typeof reportHtml !== 'string' || !reportHtml) {
 		reportRoot.innerHTML =
 			'<section class="empty-state">No feedback report was found. Please run VeriCite again.</section>';
 		return;
 	}
 
 	// Injects the HTML created into the report HTML root.
-	reportRoot.innerHTML = String(reportHtml);
+	reportRoot.innerHTML = reportHtml;
 }
 
 loadFeedbackReport().catch((error) => {

@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 import { FinalCheckResult, ReferenceStatus, FeedbackGenerationMessage } from '../types';
 
 function getOriginalReference(result: FinalCheckResult): string {
@@ -148,7 +150,7 @@ export async function feedbackGeneration(
 	const html = buildFeedbackReportHtml(results);
 
 	// If can't create a new tab then give an Error
-	if (!globalThis.browser?.tabs?.create) {
+	if (!browser?.tabs?.create) {
 		return {
 			ok: false,
 			tabId: undefined,

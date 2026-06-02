@@ -13,7 +13,7 @@
 		"fmt:check": "oxfmt --check",
 		"lint": "oxlint",
 		"lint:fix": "oxlint --fix",
-		"build": "pnpm run typecheck && esbuild index.ts service-worker.ts --bundle --outdir=dist --format=esm"
+		"build": "pnpm run typecheck && tsdown"
 	},
 	"dependencies": {
 		"webextension-polyfill": "^0.12.0"
@@ -23,10 +23,10 @@
 		"@types/node": "^25.9.1",
 		"@types/webextension-polyfill": "^0.12.5",
 		"@vitest/coverage-v8": "^4.1.7",
-		"esbuild": "^0.28.0",
 		"oxfmt": "^0.51.0",
 		"oxlint": "^1.66.0",
 		"oxlint-tsgolint": "^0.23.0",
+		"tsdown": "^0.22.1",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"
 	},

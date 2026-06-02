@@ -80,4 +80,6 @@ export type RuntimeMessageType = GoogleLoginMessage | BeginProcessingMessage;
 
 export type GoogleLoginResponse = { ok: true } | { ok: false; error: string };
 
-export type RuntimeResponse = { ok: true; data?: unknown } | { ok: false; error: string };
+export type RuntimeResponse =
+	| { ok: boolean; data: FinalCheckResult[]; feedbackReport: FeedbackGenerationMessage }
+	| { ok: boolean; error: string };

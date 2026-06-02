@@ -8,6 +8,7 @@ import type {
 	VerifySourceResult,
 	RuntimeMessageType,
 	RuntimeResponse,
+	GoogleLoginResponse,
 } from './src/types.js';
 import { isGoogleDocsUrl, normalizeWhitespace } from './src/utility/utility';
 import { isValidAPA } from './src/verifyAPA';
@@ -112,7 +113,10 @@ function isRuntimeMessage(message: unknown): message is RuntimeMessageType {
 }
 
 browser.runtime.onMessage.addListener(
-	async (message: unknown, _sender: any): Promise<RuntimeResponse | undefined> => {
+	async (
+		message: unknown,
+		_sender: any,
+	): Promise<RuntimeResponse | GoogleLoginResponse | undefined> => {
 		if (!isRuntimeMessage(message)) {
 			return {
 				ok: false,
@@ -177,7 +181,7 @@ browser.runtime.onMessage.addListener(
 				return { ok: false, error: 'Invalid document ID' };
 			}
 
-			fetchGoogleDoc(documentId)
+			return fetchGoogleDoc(documentId)
 				.then(async (doc) => {
 					const result: FinalCheckResult[] = [];
 					// Paragraphs are defined as text seperated by a newline character in the document
@@ -213,7 +217,7 @@ browser.runtime.onMessage.addListener(
 
 					return {
 						ok: true,
-						result,
+						data: result,
 						feedbackReport,
 					};
 				})

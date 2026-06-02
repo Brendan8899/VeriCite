@@ -60,8 +60,8 @@ export function hasYear(citation: string): HasYearResult {
 }
 
 export async function isValidAPA(citation: string): Promise<FormatValidationResult> {
-	const errors: Array<string> = [];
-	const warnings: Array<string> = [];
+	let errors: Array<string> = [];
+	let warnings: Array<string> = [];
 
 	if (!AUTHOR_REGEX.test(citation) && !ORG_AUTHOR_REGEX.test(citation))
 		errors.push('Author or Organization Author is missing or not correctly formatted');
@@ -81,9 +81,11 @@ export async function isValidAPA(citation: string): Promise<FormatValidationResu
 	// Year validity check
 	const yearResult: HasYearResult = hasYear(citation);
 	if (!yearResult.found && yearResult.errors) {
-		errors.concat(yearResult.errors);
+		errors = errors.concat(yearResult.errors);
 	}
-	if (yearResult.warning) warnings.concat(yearResult.warning);
+	if (yearResult.warning) {
+		warnings = warnings.concat(yearResult.warning);
+	}
 
 	// Title check
 	const titleRegex = /\((\d{4}|n\.d\.)[^)]*\)\.\s.+?\./;

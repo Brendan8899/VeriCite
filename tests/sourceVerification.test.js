@@ -7,7 +7,7 @@ import {
 	scoreBookMatch,
 	transformGoogleBookItem,
 	verifySource,
-} from '../src/sourceVerificationEngine/sourceVerification.js';
+} from '../src/sourceVerificationEngine/sourceVerification';
 
 describe('normalizeForCompare - prepares free text for matching', () => {
 	// Decomposes Accented Characters with NKFD
@@ -18,9 +18,7 @@ describe('normalizeForCompare - prepares free text for matching', () => {
 		expect(normalizeForCompare('Clean-Code: A Handbooké!')).toBe('clean code a handbooke');
 	});
 
-	test('turns nullish and empty values into an empty comparison string', () => {
-		expect(normalizeForCompare(null)).toBe('');
-		expect(normalizeForCompare(undefined)).toBe('');
+	test('turns empty string into an empty string', () => {
 		expect(normalizeForCompare('')).toBe('');
 	});
 });
@@ -58,10 +56,6 @@ describe('normalizeIsbn: standardizes ISBN values', () => {
 	test('removes hyphens and whitespace while preserving ISBN X check digits', () => {
 		expect(normalizeIsbn('0-306 40615-x')).toBe('030640615X');
 	});
-
-	test('handles missing values as an empty string', () => {
-		expect(normalizeIsbn(null)).toBe('');
-	});
 });
 
 describe('transformGoogleBookItem: extracts the fields used for scoring', () => {
@@ -90,8 +84,10 @@ describe('transformGoogleBookItem: extracts the fields used for scoring', () => 
 	test('returns only available fields for sparse or malformed Google Books items', () => {
 		expect(transformGoogleBookItem({ volumeInfo: { title: 'Only a Title' } })).toEqual({
 			title: 'Only a Title',
+			authors: [],
+			isbn: [],
+			publishedDate: undefined,
 		});
-		expect(transformGoogleBookItem(null)).toEqual({});
 	});
 });
 
@@ -156,7 +152,7 @@ describe('verifySource: verifies citations through Google Books', () => {
 		});
 		global.fetch = fetchMock;
 
-		const result = await verifySource(citation, 'APA', 'test-token');
+		const result = await verifySource(citation, 'test-token');
 
 		expect(fetchMock).toHaveBeenCalledWith(
 			expect.stringContaining('https://www.googleapis.com/books/v1/volumes?q='),
@@ -177,54 +173,52 @@ describe('verifySource: verifies citations through Google Books', () => {
 		expect(result.matches.map((match) => match.title)).toEqual(['Clean Code', 'Unrelated Book']);
 	});
 
-	// test('returns an invalid warning when the best available match scores below the threshold', async () => {
-	// 	global.fetch = vi.fn().mockResolvedValue({
-	// 		ok: true,
-	// 		json: vi.fn().mockResolvedValue({
-	// 			items: [
-	// 				{
-	// 					volumeInfo: {
-	// 						title: 'Clean Code',
-	// 					},
-	// 				},
-	// 			],
-	// 		}),
-	// 	});
+	test('returns an invalid warning when the best available match scores below the threshold', async () => {
+		global.fetch = vi.fn().mockResolvedValue({
+			ok: true,
+			json: vi.fn().mockResolvedValue({
+				items: [
+					{
+						volumeInfo: {
+							title: 'Clean Code',
+						},
+					},
+				],
+			}),
+		});
 
-	// 	const result = await verifySource(
-	// 		'A citation that mentions Clean Code only.',
-	// 		'APA',
-	// 		'test-token',
-	// 	);
+		const result = await verifySource('A citation that mentions Clean Code only.', 'test-token');
 
-	// 	// toMatchObject only checks the fields tjhat are expected, there could be more fields in results
-	// 	expect(result).toMatchObject({
-	// 		ok: true,
-	// 		valid: false,
-	// 		errors: ['Book found may not be matching. Please verify if reference exists.'],
-	// 	});
-	// 	expect(result.bestMatch).toMatchObject({
-	// 		title: 'Clean Code',
-	// 		score: 2,
-	// 	});
-	// });
+		// toMatchObject only checks the fields tjhat are expected, there could be more fields in results
+		expect(result).toMatchObject({
+			ok: true,
+			valid: false,
+			errors: [],
+			warnings: ['Book found may not be matching. Please verify if reference exists.'],
+		});
+		expect(result.bestMatch).toMatchObject({
+			title: 'Clean Code',
+			score: 2,
+		});
+	});
 
-	// test('returns a no-match error when Google Books responds without items', async () => {
-	// 	global.fetch = vi.fn().mockResolvedValue({
-	// 		ok: true,
-	// 		json: vi.fn().mockResolvedValue({ items: [] }),
-	// 	});
+	test('returns a no-match error when Google Books responds without items', async () => {
+		global.fetch = vi.fn().mockResolvedValue({
+			ok: true,
+			json: vi.fn().mockResolvedValue({ items: [] }),
+		});
 
-	// 	const result = await verifySource('Unknown citation.', 'MLA', 'test-token');
+		const result = await verifySource('Unknown citation.', 'test-token');
 
-	// 	expect(result).toEqual({
-	// 		ok: true,
-	// 		valid: false,
-	// 		bestMatch: null,
-	// 		matches: [],
-	// 		errors: ['No matching book found in Google Books'],
-	// 	});
-	// });
+		expect(result).toEqual({
+			ok: true,
+			valid: false,
+			bestMatch: undefined,
+			matches: [],
+			errors: ['No matching book found in Google Books'],
+			warnings: [],
+		});
+	});
 
 	test('returns a request error when the Google Books API response is not ok', async () => {
 		global.fetch = vi.fn().mockResolvedValue({
@@ -232,14 +226,15 @@ describe('verifySource: verifies citations through Google Books', () => {
 			status: 503,
 		});
 
-		const result = await verifySource('Any citation.', 'IEEE', 'test-token');
+		const result = await verifySource('Any citation.', 'test-token');
 
 		expect(result).toEqual({
 			ok: false,
 			valid: false,
-			bestMatch: null,
+			bestMatch: undefined,
 			matches: [],
 			errors: ['Google Books API request failed with status 503'],
+			warnings: [],
 		});
 	});
 });

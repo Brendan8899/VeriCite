@@ -7,18 +7,27 @@
 	"scripts": {
 		"test": "vitest",
 		"test:coverage": "vitest run --coverage",
+		"typecheck": "tsc --noEmit",
 		"test:ci": "vitest run --config vitest.config.ci.ts",
 		"fmt": "oxfmt",
 		"fmt:check": "oxfmt --check",
 		"lint": "oxlint",
-		"lint:fix": "oxlint --fix"
+		"lint:fix": "oxlint --fix",
+		"build": "pnpm run typecheck && tsdown"
+	},
+	"dependencies": {
+		"webextension-polyfill": "^0.12.0"
 	},
 	"devDependencies": {
+		"@types/firefox-webext-browser": "^143.0.0",
 		"@types/node": "^25.9.1",
+		"@types/webextension-polyfill": "^0.12.5",
 		"@vitest/coverage-v8": "^4.1.7",
 		"oxfmt": "^0.51.0",
 		"oxlint": "^1.66.0",
 		"oxlint-tsgolint": "^0.23.0",
+		"tsdown": "^0.22.1",
+		"typescript": "^6.0.3",
 		"vitest": "^4.1.7"
 	},
 	"packageManager": "pnpm@11.2.2"

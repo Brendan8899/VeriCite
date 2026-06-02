@@ -1,4 +1,7 @@
-import { isGoogleDocsUrl } from './utility/utility.js';
+import browser from 'webextension-polyfill';
+
+import { GoogleLoginResponse } from './src/types';
+import { isGoogleDocsUrl } from './src/utility/utility';
 
 // Get the Current Active Tab
 async function getCurrentTab() {
@@ -12,12 +15,12 @@ async function getCurrentTab() {
 
 document.addEventListener('DOMContentLoaded', async () => {
 	const statusText = document.getElementById('status');
-	const loginButton = document.getElementById('login-button');
+	const loginButton = document.getElementById('login-button') as HTMLButtonElement;
 	const cancelButton = document.getElementById('cancel-button');
 	const loginPage = document.getElementById('login-page');
 	const settingsPage = document.getElementById('settings-page');
-	const citationFormat = document.getElementById('citation-format');
-	const continueButton = document.getElementById('continue-button');
+	const citationFormat = document.getElementById('citation-format') as HTMLSelectElement;
+	const continueButton = document.getElementById('continue-button') as HTMLButtonElement;
 	const backButton = document.getElementById('back-button');
 
 	if (
@@ -49,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	loginButton.addEventListener('click', async () => {
 		statusText.textContent = 'Logging in...';
 		try {
-			const response = await browser.runtime.sendMessage({
+			const response: GoogleLoginResponse = await browser.runtime.sendMessage({
 				type: 'GOOGLE_LOGIN',
 			});
 

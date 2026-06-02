@@ -1,4 +1,5 @@
-import { isValidUrl } from '../utility/utility.js';
+import { FormatValidationResult } from './types';
+import { isValidUrl } from './utility/utility';
 
 const IEEE_INDEX_NUMBER_REGEX = /^\[\d+\]/;
 
@@ -28,7 +29,7 @@ export const IEEE_ALL_REGEX = {
 	IEEE_ACCESSED_REGEX,
 };
 
-export async function isValidIEEE(citation) {
+export async function isValidIEEE(citation: string): Promise<FormatValidationResult> {
 	// Implementation for IEE Citation Validation
 
 	let errors = [];

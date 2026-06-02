@@ -1,3 +1,5 @@
+import browser from 'webextension-polyfill';
+
 const reportRoot = document.getElementById('feedback-report');
 
 async function loadFeedbackReport() {
@@ -8,13 +10,13 @@ async function loadFeedbackReport() {
 	const storedReport = await browser.storage.local.get('vericiteFeedbackReportHtml');
 	const reportHtml = storedReport.vericiteFeedbackReportHtml;
 
-	if (!reportHtml) {
+	if (typeof reportHtml !== 'string' || !reportHtml) {
 		reportRoot.innerHTML =
 			'<section class="empty-state">No feedback report was found. Please run VeriCite again.</section>';
 		return;
 	}
 
-	// Injects the HTML Created into the Report HTML Root
+	// Injects the HTML created into the report HTML root.
 	reportRoot.innerHTML = reportHtml;
 }
 

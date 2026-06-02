@@ -1,10 +1,12 @@
+import { TransformedBookStructure, VerifySourceResult, ScoredBookMatch } from '../types';
+
 // Google Books API from https://developers.google.com/books/docs/v1/using#PerformingSearch
 const GOOGLE_BOOKS_API_URL = 'https://www.googleapis.com/books/v1/volumes';
 
 // Normalize text so citation fields and Google Books results can be compared
 //  without casing or punctuation differences.
-export function normalizeForCompare(value) {
-	return String(value || '')
+export function normalizeForCompare(value: string): string {
+	return value
 		.toLowerCase()
 		.normalize('NFKD')
 		.replace(/[\u0300-\u036f]/g, '')
@@ -13,30 +15,38 @@ export function normalizeForCompare(value) {
 }
 
 // Returns a Boolean to show if either Source or Target are Substrings of each other
-export function includesComparable(source, target) {
-	// Normalize Source and Target to compare and find inclusion exact match
-	const normalizedSource = normalizeForCompare(source);
-	const normalizedTarget = normalizeForCompare(target);
-	return Boolean(
-		normalizedSource &&
-		normalizedTarget &&
-		(normalizedSource.includes(normalizedTarget) || normalizedTarget.includes(normalizedSource)),
-	);
+export function includesComparable(
+	source: string | undefined,
+	target: string | undefined,
+): boolean {
+	if (source === undefined || target === undefined) {
+		return false;
+	} else {
+		// Normalize Source and Target to compare and find inclusion exact match
+		const normalizedSource = normalizeForCompare(source);
+		const normalizedTarget = normalizeForCompare(target);
+		return Boolean(
+			normalizedSource &&
+			normalizedTarget &&
+			(normalizedSource.includes(normalizedTarget) || normalizedTarget.includes(normalizedSource)),
+		);
+	}
 }
 
 // Normalize ISBN Values by dropping all hyphens and replacing with empty string
-export function normalizeIsbn(value) {
-	return String(value || '')
-		.replace(/[-\s]/g, '')
-		.toUpperCase();
+export function normalizeIsbn(value: string): string {
+	return value.replace(/[-\s]/g, '').toUpperCase();
 }
 
 // Scoring the Books that Google Book API returned to show Best Match
-export function scoreBookMatch(citation, transformedBook) {
+export function scoreBookMatch(
+	citation: string,
+	transformedBook: TransformedBookStructure,
+): number {
 	let score = 0;
 	// ISBN is the strongest signal because it identifies a specific book edition.
 	// Transformed Book ISBN field is an Array of ISBN Numbers
-	if (citation && transformedBook.isbn && Array.isArray(transformedBook.isbn)) {
+	if (citation) {
 		for (const isbnNumber of transformedBook.isbn) {
 			if (citation.includes(isbnNumber)) {
 				score += 4;
@@ -45,7 +55,7 @@ export function scoreBookMatch(citation, transformedBook) {
 	}
 
 	// Title match is the next most reliable signal from a citation.
-	if (citation && includesComparable(citation, transformedBook.title)) {
+	if (citation && includesComparable(citation, transformedBook.title ?? undefined)) {
 		score += 2;
 	}
 
@@ -65,7 +75,11 @@ export function scoreBookMatch(citation, transformedBook) {
 	}
 
 	// Google Books usually returns a full date; compare only the year.
-	if (citation && citation.includes(transformedBook?.publishedDate)) {
+	if (
+		citation &&
+		transformedBook?.publishedDate &&
+		citation.includes(transformedBook?.publishedDate)
+	) {
 		score += 1;
 	}
 
@@ -73,21 +87,37 @@ export function scoreBookMatch(citation, transformedBook) {
 }
 
 // Transforms Raw Google Book Item returned by the API to a more accessible version for better score calculation
-export function transformGoogleBookItem(rawGoogleBookItem) {
-	const result = {};
+export function transformGoogleBookItem(rawGoogleBookItem: any): TransformedBookStructure {
+	const result: TransformedBookStructure = {
+		authors: [],
+		title: undefined,
+		isbn: [],
+		publishedDate: undefined,
+	};
+
+	if (typeof rawGoogleBookItem !== 'object' || rawGoogleBookItem === null) {
+		return result;
+	}
+
 	// Authors Field is an Array
-	if (rawGoogleBookItem?.volumeInfo?.authors) {
+	if (
+		rawGoogleBookItem?.volumeInfo?.authors &&
+		Array.isArray(rawGoogleBookItem?.volumeInfo?.authors)
+	) {
 		result.authors = rawGoogleBookItem.volumeInfo.authors;
-		// Title Field is a String
 	}
-	if (rawGoogleBookItem?.volumeInfo?.title) {
+	// Title Field is a String
+	if (
+		rawGoogleBookItem?.volumeInfo?.title &&
+		typeof rawGoogleBookItem?.volumeInfo?.title === 'string'
+	) {
 		result.title = rawGoogleBookItem.volumeInfo.title;
-		// Published Date is a String
 	}
+	// Published Date is a String
 	if (rawGoogleBookItem?.volumeInfo?.publishedDate) {
 		result.publishedDate = rawGoogleBookItem.volumeInfo.publishedDate;
-		// industryIdentifiers is an Array of Items
 	}
+	// industryIdentifiers is an Array of Items
 	if (
 		rawGoogleBookItem?.volumeInfo?.industryIdentifiers &&
 		Array.isArray(rawGoogleBookItem?.volumeInfo?.industryIdentifiers)
@@ -96,7 +126,8 @@ export function transformGoogleBookItem(rawGoogleBookItem) {
 		for (let industryIdentifier of rawGoogleBookItem.volumeInfo.industryIdentifiers) {
 			if (
 				(industryIdentifier?.type === 'ISBN_10' || industryIdentifier.type === 'ISBN_13') &&
-				industryIdentifier.identifier
+				industryIdentifier.identifier &&
+				typeof industryIdentifier.identifier === 'string'
 			) {
 				result.isbn.push(industryIdentifier.identifier);
 			}
@@ -105,7 +136,10 @@ export function transformGoogleBookItem(rawGoogleBookItem) {
 	return result;
 }
 
-export async function verifySource(citation, citationFormat, userToken) {
+export async function verifySource(
+	citation: string,
+	userToken: string,
+): Promise<VerifySourceResult> {
 	const queryURL = new URL(GOOGLE_BOOKS_API_URL);
 	queryURL.searchParams.set('q', citation);
 	const response = await fetch(queryURL.toString(), {
@@ -118,22 +152,23 @@ export async function verifySource(citation, citationFormat, userToken) {
 		return {
 			ok: false,
 			valid: false,
-			bestMatch: null,
+			bestMatch: undefined,
 			matches: [],
 			errors: [`Google Books API request failed with status ${response.status}`],
+			warnings: [],
 		};
 	}
 
 	const data = await response.json();
 	const matches = (data.items || [])
-		.map((book) => {
+		.map((book: any) => {
 			return transformGoogleBookItem(book);
 		})
-		.map((transformedBook) => {
+		.map((transformedBook: TransformedBookStructure) => {
 			return { ...transformedBook, score: scoreBookMatch(citation, transformedBook) };
 		})
-		.sort((a, b) => b.score - a.score);
-	const bestMatch = matches[0] || null;
+		.sort((a: ScoredBookMatch, b: ScoredBookMatch) => b.score - a.score);
+	const bestMatch = matches[0] || undefined;
 
 	const resultErrors = [];
 	const resultWarning = [];

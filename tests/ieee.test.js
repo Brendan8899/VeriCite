@@ -1,7 +1,7 @@
 import { test, describe, expect } from 'vitest';
 
+import { normalizeWhitespace } from '../src/utility/utility';
 import { isValidIEEE } from '../src/verifyIEEE';
-import { normalizeWhitespace } from '../utility/utility.js';
 
 describe('isValidIEEE - format validation', () => {
 	// All test citations will be taken from IEEE Reference from:

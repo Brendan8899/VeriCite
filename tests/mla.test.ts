@@ -1,8 +1,7 @@
 import { vi, test, describe, expect, beforeEach, afterEach } from 'vitest';
+import type { Mock } from 'vitest';
 
 import { isValidMLA } from '../src/verifyMLA';
-
-import type { Mock } from 'vitest';
 
 global.fetch = vi.fn() as unknown as Mock;
 
@@ -48,7 +47,8 @@ describe('MLA author format', () => {
 	});
 
 	test('passes corporate or org author', async () => {
-		const citation = 'World Health Organization. "Report Title." WHO, 10 Apr. 2020, www.who.int/example.';
+		const citation =
+			'World Health Organization. "Report Title." WHO, 10 Apr. 2020, www.who.int/example.';
 		const result = await isValidMLA(citation);
 		console.log(result.errors);
 		expect(result.valid).toBe(true);
@@ -116,7 +116,7 @@ describe('MLA website format', () => {
 	});
 
 	test('fails when access date is missing for web source', async () => {
-		const citation = 			
+		const citation =
 			'Slat, Boyan. “Whales Likely Impacted by Great Pacific Garbage Patch.” The Ocean Cleanup, www.theoceancleanup.com/updates/whales-likely-impacted-by-great-pacific-garbage-patch. Accessed 28 May.';
 		const result = await isValidMLA(citation);
 		console.log(result.errors);

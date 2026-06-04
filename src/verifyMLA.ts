@@ -70,9 +70,7 @@ export const ALL_MLA_REGEX = {
 
 // Function to determine if the citation looks like a website by detecting a website
 function looksLikeWebsiteCitation(normalised: string): boolean {
-	return (
-		URL_REGEX.test(normalised)
-	);
+	return URL_REGEX.test(normalised);
 }
 
 // MLA year is a bare 4-digit number near the end, no parentheses
@@ -95,20 +93,27 @@ function hasYearMLA(citation: string): HasYearResult {
 			warnings.push(
 				'Year of citation not detected. Do check if the citation provides one and update if possible.',
 			);
-			return { found: false, value: undefined, errors: ['Web citation must include a publication or access date'], warning: [] };
+			return {
+				found: false,
+				value: undefined,
+				errors: ['Web citation must include a publication or access date'],
+				warning: [],
+			};
 		}
 	}
 
 	if (!match) return { found: false, value: undefined, errors: ['Year is missing'], warning: [] };
 
 	const year = parseInt(match[1]);
-	if (year < 1800) return { found: false, value: undefined, errors: ['Year is implausibly old'], warning: [] };
-	if (year > currentYear) return { found: false, value: undefined, errors: ['Year is in the future'], warning: [] };
+	if (year < 1800)
+		return { found: false, value: undefined, errors: ['Year is implausibly old'], warning: [] };
+	if (year > currentYear)
+		return { found: false, value: undefined, errors: ['Year is in the future'], warning: [] };
 
 	return { found: true, value: year, errors: [], warning: [] };
 }
 
-async function isValidMLA(citation:string) {
+async function isValidMLA(citation: string) {
 	const normalised = normalizeWhitespace(citation);
 	let errors: string[] = [];
 	const warnings: string[] = [];
@@ -202,7 +207,7 @@ async function isValidMLA(citation:string) {
 					finalLink = match[0].slice(0, -1);
 				}
 			}
-			if (finalLink){
+			if (finalLink) {
 				wwwResult = await checkUrlExists(finalLink);
 			}
 
@@ -214,7 +219,7 @@ async function isValidMLA(citation:string) {
 	}
 
 	if (MLA_ORG_AUTHOR_INDEX_REGEX.test(normalised)) {
-		errors.push('does not pass corporate or org author format')
+		errors.push('does not pass corporate or org author format');
 	}
 
 	return { valid: errors.length === 0, errors, warnings };

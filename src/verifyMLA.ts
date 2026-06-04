@@ -7,7 +7,7 @@ const YEAR_REGEX = /,?\s(\d{4})[,.]/;
 
 // Must have a date — matches "15 Jan. 2021" or "Accessed 20 May 2026."
 const PUBLICATION_DATE_REGEX = /\b\d{1,2}\s[A-Z][a-z]+\.\s\d{4}\b/;
-const ACCESSED_DATE_REGEX = /\bAccessed\s\d{1,2}\s[A-Z][a-z]+(?:\s\d{4})?\.?/;
+const ACCESSED_DATE_REGEX = /\bAccessed\s\d{1,2}\s[A-Z][a-z]+(?:\s\d{4})\.?/;
 
 // URL Regex with Optional https, http or www
 const URL_REGEX =
@@ -76,7 +76,6 @@ function hasYearMLA(citation: string): HasYearResult {
 	const normalised = normalizeWhitespace(citation);
 
 	const currentYear = new Date().getFullYear();
-	let errors: string[] = [];
 	const warnings: string[] = [];
 
 	const match = citation.match(YEAR_REGEX);
@@ -89,11 +88,10 @@ function hasYearMLA(citation: string): HasYearResult {
 		const hasAccessDate = ACCESSED_DATE_REGEX.test(normalised);
 
 		if (!hasAccessDate && !hasPublicationDate) {
-			errors.push('Web citation must include a publication or access date');
 			warnings.push(
 				'Year of citation not detected. Do check if the citation provides one and update if possible.',
 			);
-			return { found: false, value: undefined, errors: ['Year is missing'], warning: [] };
+			return { found: false, value: undefined, errors: ['Web citation must include a publication or access date'], warning: [] };
 		}
 	}
 
@@ -159,16 +157,6 @@ async function isValidMLA(citation:string) {
 	// --- 7. Page range em-dash check (applies to all source types with pages)
 	if (HYPHEN_PAGE_RANGE_REGEX.test(normalised)) {
 		errors.push('Page range should use an em-dash (–) not a hyphen (-)');
-	}
-
-	// --- 8. Website-specific checks
-	if (looksLikeWebsiteCitation(normalised)) {
-		const hasPublicationDate = PUBLICATION_DATE_REGEX.test(normalised);
-		const hasAccessDate = ACCESSED_DATE_REGEX.test(normalised);
-
-		if (!hasAccessDate && !hasPublicationDate) {
-			errors.push('Web citation must include a publication or access date');
-		}
 	}
 
 	// --- 9. Book-specific checks

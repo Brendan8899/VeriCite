@@ -48,8 +48,9 @@ describe('MLA author format', () => {
 	});
 
 	test('passes corporate or org author', async () => {
-		const citation = 'World Health Organization. "Report Title." WHO, 2020, www.who.int/example.';
+		const citation = 'World Health Organization. "Report Title." WHO, 10 Apr. 2020, www.who.int/example.';
 		const result = await isValidMLA(citation);
+		console.log(result.errors);
 		expect(result.valid).toBe(true);
 	});
 });
@@ -118,6 +119,7 @@ describe('MLA website format', () => {
 		const citation = 			
 			'Slat, Boyan. “Whales Likely Impacted by Great Pacific Garbage Patch.” The Ocean Cleanup, www.theoceancleanup.com/updates/whales-likely-impacted-by-great-pacific-garbage-patch. Accessed 28 May.';
 		const result = await isValidMLA(citation);
+		console.log(result.errors);
 		expect(result.valid).toBe(false);
 		expect(result.errors).toContain('Web citation must include a publication or access date');
 	});

@@ -20,6 +20,9 @@ const INITIALS_REGEX = /^[A-Z][a-zA-Z-]+,\s[A-Z]\./;
 
 const SECOND_AUTHOR_INVERTED_REGEX = /,\sand\s[A-Z][a-z]+,\s[A-Z][a-z]+/;
 
+const MLA_ORG_AUTHOR_INDEX_REGEX =
+	/^\[\d+\]\s[A-Z][a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]*(\s[a-zA-Z0-9À-ÖØ-öø-ÿ&'’.,-]+)*[.,]/;
+
 const APA_YEAR_REGEX = /^.+?\.\s\(\d{4}\)/;
 
 // Only applies if this looks like an article/chapter (has a container after the title)
@@ -52,6 +55,7 @@ export const ALL_MLA_REGEX = {
 	AUTHOR_REGEX,
 	INITIALS_REGEX,
 	SECOND_AUTHOR_INVERTED_REGEX,
+	MLA_ORG_AUTHOR_INDEX_REGEX,
 	APA_YEAR_REGEX,
 	HAS_QUOTED_TITLE_REGEX,
 	JOURNAL_CITATION_REGEX,
@@ -208,6 +212,11 @@ async function isValidMLA(citation:string) {
 			}
 		}
 	}
+
+	if (MLA_ORG_AUTHOR_INDEX_REGEX.test(normalised)) {
+		errors.push('does not pass corporate or org author format')
+	}
+
 	return { valid: errors.length === 0, errors, warnings };
 }
 

@@ -1,5 +1,5 @@
-import { HasYearResult } from './types.js';
-import { isValidUrl, checkUrlExists, normalizeWhitespace } from './utility/utility.js';
+import { HasYearResult } from './types';
+import { isValidUrl, checkUrlExists, normalizeWhitespace } from './utility/utility';
 
 // Regex
 // matches a bare year: ", 2021," or ", 2021."

@@ -9,10 +9,14 @@ import type {
 	RuntimeMessageType,
 	RuntimeResponse,
 	GoogleLoginResponse,
+	AuthCheckResponse,
 } from './src/types';
 import { isGoogleDocsUrl, normalizeWhitespace } from './src/utility/utility';
 import { isValidAPA } from './src/verifyAPA';
 import { isValidIEEE } from './src/verifyIEEE';
+
+const TOKEN_STORAGE_KEY = 'googleAuthToken';
+const TOKEN_LIFETIME_MS = 60 * 60 * 1000;
 
 type GoogleDoc = {
 	body?: {
@@ -34,10 +38,34 @@ type GoogleDocParagraphElement = {
 	};
 };
 
-let token: string | null = null;
+type StoredAuthToken = {
+	token?: string;
+	expiresAt?: number;
+};
+
+async function storeAuthToken(authToken: string): Promise<void> {
+	await browser.storage.local.set({
+		[TOKEN_STORAGE_KEY]: {
+			token: authToken,
+			expiresAt: Date.now() + TOKEN_LIFETIME_MS,
+		},
+	});
+}
+
+async function getStoredAuthToken(): Promise<string | null> {
+	const storedValues = await browser.storage.local.get(TOKEN_STORAGE_KEY);
+	const storedToken = storedValues[TOKEN_STORAGE_KEY] as StoredAuthToken | undefined;
+
+	if (!storedToken?.token || !storedToken?.expiresAt || storedToken.expiresAt <= Date.now()) {
+		await browser.storage.local.remove(TOKEN_STORAGE_KEY);
+		return null;
+	}
+
+	return storedToken.token;
+}
 
 // Fetch the Google Document that the User is Looking at
-async function fetchGoogleDoc(documentId: string): Promise<GoogleDoc> {
+async function fetchGoogleDoc(documentId: string, authToken: string): Promise<GoogleDoc> {
 	// Request URL based on Documentation
 	const requestUrl = `https://docs.googleapis.com/v1/documents/${documentId}`;
 
@@ -45,7 +73,7 @@ async function fetchGoogleDoc(documentId: string): Promise<GoogleDoc> {
 	const response = await fetch(requestUrl, {
 		method: 'GET',
 		headers: {
-			Authorization: `Bearer ${token}`,
+			Authorization: `Bearer ${authToken}`,
 		},
 	});
 
@@ -109,18 +137,26 @@ function isRuntimeMessage(message: unknown): message is RuntimeMessageType {
 
 	const msg = message as { type?: unknown };
 
-	return msg.type === 'GOOGLE_LOGIN' || msg.type === 'BEGIN_PROCESSING';
+	return (
+		msg.type === 'GOOGLE_LOGIN' || msg.type === 'BEGIN_PROCESSING' || msg.type === 'CHECK_AUTH'
+	);
 }
 
 browser.runtime.onMessage.addListener(
 	async (
 		message: unknown,
 		_sender: any,
-	): Promise<RuntimeResponse | GoogleLoginResponse | undefined> => {
+	): Promise<RuntimeResponse | GoogleLoginResponse | AuthCheckResponse | undefined> => {
 		if (!isRuntimeMessage(message)) {
 			return {
 				ok: false,
 				error: 'Invalid Runtime Message',
+			};
+		} else if (message.type === 'CHECK_AUTH') {
+			const authToken = await getStoredAuthToken();
+
+			return {
+				ok: Boolean(authToken),
 			};
 		} else if (message.type === 'GOOGLE_LOGIN') {
 			try {
@@ -141,7 +177,15 @@ browser.runtime.onMessage.addListener(
 				});
 
 				const params = new URLSearchParams(new URL(responseURL).hash.slice(1));
-				token = params.get('access_token');
+				const authToken = params.get('access_token');
+				if (!authToken) {
+					return {
+						ok: false,
+						error: 'Google login did not return an access token',
+					};
+				}
+
+				await storeAuthToken(authToken);
 				return {
 					ok: true,
 				};
@@ -155,13 +199,13 @@ browser.runtime.onMessage.addListener(
 			console.log('BEGIN_PROCESSING received', message);
 
 			// If token does not exists, user is not authenticated yet, do not proceed with processing
-			if (!token) {
+			const authToken = await getStoredAuthToken();
+			if (!authToken) {
 				return {
 					ok: false,
 					error: 'Not authenticated',
 				};
 			}
-			const authToken = token;
 
 			// User is authenticated, proceed with processing
 			const url = message.tab.url;
@@ -181,7 +225,7 @@ browser.runtime.onMessage.addListener(
 				return { ok: false, error: 'Invalid document ID' };
 			}
 
-			return fetchGoogleDoc(documentId)
+			return fetchGoogleDoc(documentId, authToken)
 				.then(async (doc) => {
 					const result: FinalCheckResult[] = [];
 					// Paragraphs are defined as text seperated by a newline character in the document

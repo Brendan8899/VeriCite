@@ -76,10 +76,16 @@ type BeginProcessingMessage = {
 	tab: browser.tabs.Tab;
 };
 
-export type RuntimeMessageType = GoogleLoginMessage | BeginProcessingMessage;
+type CheckAuthMessage = {
+	type: 'CHECK_AUTH';
+};
+
+export type RuntimeMessageType = GoogleLoginMessage | BeginProcessingMessage | CheckAuthMessage;
 
 export type GoogleLoginResponse = { ok: true } | { ok: false; error: string };
 
 export type RuntimeResponse =
 	| { ok: boolean; data: FinalCheckResult[]; feedbackReport: FeedbackGenerationMessage }
 	| { ok: boolean; error: string };
+
+export type AuthCheckResponse = { ok: boolean };

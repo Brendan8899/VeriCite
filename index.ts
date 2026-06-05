@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { GoogleLoginResponse } from './src/types';
+import { AuthCheckResponse } from './src/types';
 import { isGoogleDocsUrl } from './src/utility/utility';
 
 // Get the Current Active Tab
@@ -46,6 +47,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 		loginButton.disabled = true;
 		continueButton.disabled = true;
 		return;
+	}
+
+	const authResponse: AuthCheckResponse = await browser.runtime.sendMessage({
+		type: 'CHECK_AUTH',
+	});
+
+	if (authResponse?.ok) {
+		loginPage.hidden = true;
+		settingsPage.hidden = false;
+		statusText.textContent = 'Logged in successfully.';
 	}
 
 	// User has clicked the login button, send a message to the service worker to initiate the Google Login Process

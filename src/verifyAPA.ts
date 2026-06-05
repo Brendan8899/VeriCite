@@ -43,20 +43,20 @@ export function hasYear(citation: string): HasYearResult {
 			found: false,
 			value: undefined,
 			errors: ['Year is missing or not in parentheses'],
-			warning: [],
+			warnings: [],
 		};
 
 	// check if year is written as 'n.d.'
 	if (match[1] === 'n.d.')
-		return { found: true, value: undefined, errors: [], warning: ['No date — unverifiable'] };
+		return { found: true, value: undefined, errors: [], warnings: ['No date — unverifiable'] };
 
 	// check if year is before 1800 or in the future
 	const year = parseInt(match[1]);
-	if (year < 1800) return { found: false, value: year, errors: ['Year is very old'], warning: [] };
+	if (year < 1800) return { found: false, value: year, errors: ['Year is very old'], warnings: [] };
 	if (year > currentYear)
-		return { found: false, value: year, errors: ['Year is in the future'], warning: [] };
+		return { found: false, value: year, errors: ['Year is in the future'], warnings: [] };
 
-	return { found: true, value: year, errors: [], warning: [] };
+	return { found: true, value: year, errors: [], warnings: [] };
 }
 
 export async function isValidAPA(citation: string): Promise<FormatValidationResult> {
@@ -83,8 +83,8 @@ export async function isValidAPA(citation: string): Promise<FormatValidationResu
 	if (!yearResult.found && yearResult.errors) {
 		errors = errors.concat(yearResult.errors);
 	}
-	if (yearResult.warning) {
-		warnings = warnings.concat(yearResult.warning);
+	if (yearResult.warnings) {
+		warnings = warnings.concat(yearResult.warnings);
 	}
 
 	// Title check

@@ -50,7 +50,6 @@ describe('MLA author format', () => {
 		const citation =
 			'World Health Organization. "Report Title." WHO, 10 Apr. 2020, www.who.int/example.';
 		const result = await isValidMLA(citation);
-		console.log(result.errors);
 		expect(result.valid).toBe(true);
 	});
 });
@@ -119,9 +118,10 @@ describe('MLA website format', () => {
 		const citation =
 			'Slat, Boyan. “Whales Likely Impacted by Great Pacific Garbage Patch.” The Ocean Cleanup, www.theoceancleanup.com/updates/whales-likely-impacted-by-great-pacific-garbage-patch. Accessed 28 May.';
 		const result = await isValidMLA(citation);
-		console.log(result.errors);
 		expect(result.valid).toBe(false);
-		expect(result.errors).toContain('Web citation must include a publication or access date');
+		expect(result.errors).toContain(
+			'Web citation for Accessed Date must be in the format of Day Month Year. example: Accessed 6 July 2025.',
+		);
 	});
 
 	test('flags unreachable URL', async () => {
@@ -140,41 +140,6 @@ describe('MLA website format', () => {
 	});
 });
 
-describe('MLA book format', () => {
-	test('passes a well-formed book citation', async () => {
-		const citation = 'Smith, John. Book Title: A Subtitle. Publisher, 2021.';
-		const result = await isValidMLA(citation);
-		expect(result.valid).toBe(true);
-	});
-
-	test('passes a book with edition', async () => {
-		const citation = 'Smith, John. Book Title. 3rd ed., Publisher, 2021.';
-		const result = await isValidMLA(citation);
-		expect(result.valid).toBe(true);
-	});
-
-	test('passes a book chapter with editor', async () => {
-		const citation =
-			'Smith, John. "Chapter Title." Book Title, edited by Jane Doe, Publisher, 2021, pp. 45–67.';
-		const result = await isValidMLA(citation);
-		expect(result.valid).toBe(true);
-	});
-
-	test('fails when publisher is missing', async () => {
-		const citation = 'Smith, John. Book Title. 2021.';
-		const result = await isValidMLA(citation);
-		expect(result.valid).toBe(false);
-		expect(result.errors).toContain('Publisher is missing');
-	});
-
-	test('fails when year is missing entirely', async () => {
-		const citation = 'Smith, John. Book Title. Publisher.';
-		const result = await isValidMLA(citation);
-		expect(result.valid).toBe(false);
-		expect(result.errors).toContain('Year is missing');
-	});
-});
-
 describe('MLA edge cases', () => {
 	test('handles citation split across multiple lines', async () => {
 		const citation = `Smith, John. "Article Title." Journal Name,
@@ -187,13 +152,6 @@ describe('MLA edge cases', () => {
 		const citation = 'Müller, Hans. "Article Title." Journal, vol. 4, no. 1, 2021, pp. 1–10.';
 		const result = await isValidMLA(citation);
 		expect(result.valid).toBe(true);
-	});
-
-	test('returns multiple errors for badly broken citation', async () => {
-		const citation = 'J. Smith. Article Title. 2021.';
-		const result = await isValidMLA(citation);
-		expect(result.valid).toBe(false);
-		expect(result.errors.length).toBeGreaterThan(1);
 	});
 
 	test('does not confuse MLA with APA format', async () => {

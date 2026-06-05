@@ -61,7 +61,7 @@ export type HasYearResult = {
 	found: boolean;
 	value: number | undefined;
 	errors: Array<string> | undefined;
-	warning: Array<string> | undefined;
+	warnings: Array<string>;
 };
 
 type CitationFormat = 'APA' | 'MLA' | 'IEEE';

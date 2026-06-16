@@ -18,7 +18,7 @@
 		"scopes": ["https://www.googleapis.com/auth/documents", "https://www.googleapis.com/auth/books"]
 	},
 	"background": {
-		"service_worker": "dist/service-worker.js",
+		"service_worker": "service-worker.mjs",
 		"type": "module"
 	}
 }

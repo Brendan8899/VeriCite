@@ -1,8 +1,8 @@
 import browser from 'webextension-polyfill';
 
-import { GoogleLoginResponse } from './src/types';
-import { AuthCheckResponse } from './src/types';
-import { isGoogleDocsUrl } from './src/utility/utility';
+import { GoogleLoginResponse } from './types';
+import { AuthCheckResponse } from './types';
+import { isGoogleDocsUrl } from './utility/utility';
 
 // Get the Current Active Tab
 async function getCurrentTab() {

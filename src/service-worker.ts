@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill';
 
-import { feedbackGeneration } from './src/feedbackGenerationEngine/feedbackGeneration';
-import { verifySource } from './src/sourceVerificationEngine/sourceVerification';
+import { feedbackGeneration } from './feedbackGenerationEngine/feedbackGeneration';
+import { verifySource } from './sourceVerificationEngine/sourceVerification';
 import type {
 	FinalCheckResult,
 	FormatValidationResult,
@@ -10,10 +10,10 @@ import type {
 	RuntimeResponse,
 	GoogleLoginResponse,
 	AuthCheckResponse,
-} from './src/types';
-import { isGoogleDocsUrl, normalizeWhitespace } from './src/utility/utility';
-import { isValidAPA } from './src/verifyAPA';
-import { isValidIEEE } from './src/verifyIEEE';
+} from './types';
+import { isGoogleDocsUrl, normalizeWhitespace } from './utility/utility';
+import { isValidAPA } from './verifyAPA';
+import { isValidIEEE } from './verifyIEEE';
 
 const TOKEN_STORAGE_KEY = 'googleAuthToken';
 const TOKEN_LIFETIME_MS = 60 * 60 * 1000;

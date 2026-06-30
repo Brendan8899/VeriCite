@@ -42,7 +42,7 @@ const PAGE_RANGE_REGEX = /pp\.\s\d+/;
 
 const HYPHEN_PAGE_RANGE_REGEX = /pp\.\s\d+-\d+/;
 
-export const ALL_MLA_REGEX = {
+export const MLA_ALL_REGEX = {
 	YEAR_REGEX,
 	PUBLICATION_DATE_REGEX,
 	ACCESSED_DATE_REGEX,

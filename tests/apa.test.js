@@ -49,6 +49,15 @@ describe('isValidAPA - format validation', () => {
 		expect(result.errors).toHaveLength(0);
 	});
 
+	test('passes corporate or org author', async () => {
+		const citation =
+			'Merriam-Webster. (2008). Braggadocio. In Merriam-Webster’s Advanced Learner’s English Dictionary. Merriam-Webster.';
+
+		const result = await isValidAPA(citation);
+		expect(result.valid).toBe(true);
+		expect(result.errors).toHaveLength(0);
+	});
+
 	test('fails when year is not after author', async () => {
 		const citation = 'Smith, J. A. Title of article. (2021). Journal, 12(3).';
 		const result = await isValidAPA(citation);
